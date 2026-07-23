@@ -1,2 +1,2 @@
 # StudyBank-web
-Plataforma colaborativa de apuntes universitarios — Proyecto Integrador 1
+Collaborative university note-sharing platform — Integrative Project 1
