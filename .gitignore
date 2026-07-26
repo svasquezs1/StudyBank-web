@@ -1,12 +1,62 @@
-# Byte-compiled / optimized / DLL files
+# =====================================================================
+#  .gitignore — StudyBank-web (Django)
+#  Le dice a Git qué archivos NO subir al repositorio.
+#  Base: plantilla oficial de Python + añadidos propios del proyecto.
+# =====================================================================
+
+
+# ---------------------------------------------------------------------
+#  ARCHIVOS ESPECÍFICOS DE STUDYBANK  (¡lo más importante para el equipo!)
+# ---------------------------------------------------------------------
+
+# Base de datos local de SQLite: cada integrante tiene la suya con sus
+# propios datos de prueba. Compartirla causaría conflictos.
+db.sqlite3
+db.sqlite3-journal
+
+# Secretos y variables de entorno (SECRET_KEY, llaves de Cloudflare R2).
+# NUNCA debe subirse. El .env.example (plantilla vacía) SÍ va al repo.
+.env
+.envrc
+
+# Archivos subidos por usuarios en local (PDFs de apuntes, avatares).
+# En producción viven en Cloudflare R2, no en el repositorio.
+media/
+
+# Estáticos recolectados por 'collectstatic'. Se regeneran solos;
+# no tiene sentido versionarlos.
+staticfiles/
+
+
+# ---------------------------------------------------------------------
+#  ENTORNOS VIRTUALES
+#  Cada quien crea el suyo con 'python -m venv'. Pesan mucho y son
+#  específicos de cada máquina.
+# ---------------------------------------------------------------------
+.venv
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+
+# ---------------------------------------------------------------------
+#  ARCHIVOS COMPILADOS DE PYTHON
+#  Los genera Python al ejecutar; no son código fuente.
+# ---------------------------------------------------------------------
 __pycache__/
 *.py[codz]
 *$py.class
 
-# C extensions
+# Extensiones en C compiladas
 *.so
 
-# Distribution / packaging
+
+# ---------------------------------------------------------------------
+#  EMPAQUETADO Y DISTRIBUCIÓN
+#  Carpetas que se generan al construir o distribuir paquetes Python.
+# ---------------------------------------------------------------------
 .Python
 build/
 develop-eggs/
@@ -26,17 +76,19 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# PyInstaller
-#   Usually these files are written by a python script from a template
-#   before PyInstaller builds the exe, so as to inject date/other infos into it.
+# PyInstaller (empaquetado de ejecutables)
 *.manifest
 *.spec
 
-# Installer logs
+# Logs de instalación de pip
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+
+# ---------------------------------------------------------------------
+#  PRUEBAS Y COBERTURA DE CÓDIGO
+#  Reportes que generan las herramientas de testing.
+# ---------------------------------------------------------------------
 htmlcov/
 .tox/
 .nox/
@@ -51,24 +103,36 @@ coverage.xml
 .pytest_cache/
 cover/
 
-# Translations
+
+# ---------------------------------------------------------------------
+#  DJANGO
+#  Logs y configuración local que no debe compartirse.
+# ---------------------------------------------------------------------
+*.log
+local_settings.py
+
+
+# ---------------------------------------------------------------------
+#  TRADUCCIONES
+#  Archivos compilados de internacionalización.
+# ---------------------------------------------------------------------
 *.mo
 *.pot
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
 
-# Flask stuff:
+# ---------------------------------------------------------------------
+#  HERRAMIENTAS Y FRAMEWORKS VARIOS
+#  Cachés y estados locales de utilidades que podrían usarse.
+# ---------------------------------------------------------------------
+
+# Flask
 instance/
 .webassets-cache
 
-# Scrapy stuff:
+# Scrapy
 .scrapy
 
-# Sphinx documentation
+# Sphinx (documentación)
 docs/_build/
 
 # PyBuilder
@@ -82,52 +146,7 @@ target/
 profile_default/
 ipython_config.py
 
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-# Pipfile.lock
-
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-# uv.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-# poetry.lock
-# poetry.toml
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
-#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
-# pdm.lock
-# pdm.toml
-.pdm-python
-.pdm-build/
-
-# pixi
-#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
-# pixi.lock
-#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
-#   in the .venv directory. It is recommended not to include this directory in version control.
-.pixi
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
+# Celery (tareas en segundo plano)
 celerybeat-schedule
 celerybeat.pid
 
@@ -144,69 +163,92 @@ rabbitmq-data/
 # ActiveMQ
 activemq-data/
 
-# SageMath parsed files
+# SageMath
 *.sage.py
 
-# Environments
-.env
-.envrc
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
+# ---------------------------------------------------------------------
+#  VERIFICADORES DE TIPOS Y LINTERS
+#  Cachés de análisis estático de código.
+# ---------------------------------------------------------------------
 .mypy_cache/
 .dmypy.json
 dmypy.json
-
-# Pyre type checker
 .pyre/
-
-# pytype static type analyzer
 .pytype/
-
-# Cython debug symbols
 cython_debug/
-
-# PyCharm
-#   JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#   be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#   and can be added to the global gitignore or merged into this file.  For a more nuclear
-#   option (not recommended) you can uncomment the following to ignore the entire idea folder.
-# .idea/
-
-# Abstra
-#   Abstra is an AI-powered process automation framework.
-#   Ignore directories containing user credentials, local state, and settings.
-#   Learn more at https://abstra.io/docs
-.abstra/
-
-# Visual Studio Code
-#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#   that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#   and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#   you could uncomment the following to ignore the entire vscode folder
-# .vscode/
-# Temporary file for partial code execution
-tempCodeRunnerFile.py
-
-# Ruff stuff:
 .ruff_cache/
 
-# PyPI configuration file
+
+# ---------------------------------------------------------------------
+#  GESTORES DE DEPENDENCIAS Y ENTORNOS
+#  Estados locales; los archivos .lock suelen SÍ versionarse (por eso
+#  están comentados). Ver notas de cada herramienta.
+# ---------------------------------------------------------------------
+
+# pyenv — descomenta si NO quieres fijar la versión de Python
+# .python-version
+
+# pipenv — se recomienda versionar Pipfile.lock
+# Pipfile.lock
+
+# UV — se recomienda versionar uv.lock
+# uv.lock
+
+# poetry — se recomienda versionar poetry.lock
+# poetry.lock
+# poetry.toml
+
+# pdm
+# pdm.lock
+# pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+# pixi.lock
+.pixi
+
+# PEP 582
+__pypackages__/
+
+
+# ---------------------------------------------------------------------
+#  EDITORES E IDEs
+#  Configuración personal de cada desarrollador.
+# ---------------------------------------------------------------------
+
+# VS Code — ignorado para que cada quien tenga su propia config
+.vscode/
+
+# PyCharm / JetBrains — ignorado igual que VS Code
+.idea/
+
+# Archivo temporal de ejecución parcial de código
+tempCodeRunnerFile.py
+
+# macOS
+.DS_Store
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+
+# ---------------------------------------------------------------------
+#  OTRAS HERRAMIENTAS
+# ---------------------------------------------------------------------
+
+# mkdocs
+/site
+
+# Abstra (automatización)
+.abstra/
+
+# PyPI
 .pypirc
 
 # Marimo
