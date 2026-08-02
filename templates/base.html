@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}StudyBank{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+  <!-- ===================== NAVBAR ===================== -->
+  <nav class="nav">
+    <a href="{% url 'home' %}" class="brand">Study<span class="dot">Bank</span></a>
+    <div class="nav-links">
+      <a href="{% url 'home' %}" class="{% block nav_home %}{% endblock %}">Home</a>
+      <a href="#" class="{% block nav_materials %}{% endblock %}">Materials</a>
+      <a href="#" class="{% block nav_tutors %}{% endblock %}">Tutors</a>
+
+      {% if user.is_authenticated %}
+        <a href="#" class="hide-sm {% block nav_profile %}{% endblock %}">Profile</a>
+        {% if user.is_staff %}
+          <a href="#" class="hide-sm {% block nav_admin %}{% endblock %}">Admin</a>
+        {% endif %}
+        <a href="#" class="btn btn-ghost">Log out</a>
+      {% else %}
+        <a href="#" class="btn btn-ghost">Log in</a>
+        <a href="#" class="btn btn-primary">Sign up</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- ===================== CONTENT ===================== -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer>
+    <span class="brand-sm">StudyBank</span>
+    <span>Proyecto Integrador 1 (ST0251) · Universidad EAFIT</span>
+  </footer>
+
+</body>
+</html>
