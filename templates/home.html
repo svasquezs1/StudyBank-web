@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}StudyBank — Share study material & find tutors{% endblock %}
+
+{% block nav_home %}active{% endblock %}
+
+{% block content %}
+
+  <!-- Hero -->
+  <section class="hero">
+    <p class="eyebrow">Universidad EAFIT · Study platform</p>
+    <h1>Study material, shared. Tutors, <em>within reach.</em></h1>
+    <p class="lead">
+      A place for university students to upload and find study notes by course,
+      professor and program — and to book sessions with tutors, so nobody studies alone.
+    </p>
+    <div class="hero-actions">
+      <a href="#" class="btn btn-primary btn-lg">Browse materials</a>
+      <a href="#" class="btn btn-ghost btn-lg">Find a tutor</a>
+    </div>
+  </section>
+
+  <!-- Dos ramas del producto -->
+  <section class="split">
+    <a href="#" class="card">
+      <h3>Study material</h3>
+      <p>Notes, documents and past exams — organized by university, program, course and professor.</p>
+      <ul>
+        <li>Filter by program, course or professor</li>
+        <li>Download the PDFs you need</li>
+        <li>Rate and rank the most useful ones</li>
+      </ul>
+    </a>
+
+    <a href="#" class="card">
+      <h3>Tutoring</h3>
+      <p>Find a tutor for the course you're stuck on, check their open slots, and book a session.</p>
+      <ul>
+        <li>Browse tutors by subject</li>
+        <li>See available dates and times</li>
+        <li>Reserve a session in one click</li>
+      </ul>
+    </a>
+  </section>
+
+  <!-- Franja de contexto -->
+  <section class="stats">
+    <div class="stat">
+      <div class="num">1</div>
+      <div class="lbl">shared library per university</div>
+    </div>
+    <div class="stat">
+      <div class="num">PDF</div>
+      <div class="lbl">notes, documents &amp; exams</div>
+    </div>
+    <div class="stat">
+      <div class="num">2 min</div>
+      <div class="lbl">to book a tutoring session</div>
+    </div>
+  </section>
+
+{% endblock %}
