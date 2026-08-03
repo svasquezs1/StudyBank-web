@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
 from .forms import TutorRegistrationForm
-from .models import TutorProfile
+from .models import Subject, TutorProfile
 
 
 @login_required
@@ -27,4 +27,29 @@ def register_tutor(request):
         request,
         "tutoring/register_tutor.html",
         {"form": form},
+    )
+
+
+@login_required
+def tutor_search(request):
+    subjects = Subject.objects.all().order_by("name")
+    selected_subject = request.GET.get("subject")
+
+    tutors = TutorProfile.objects.filter(
+        is_approved=True
+    ).select_related("user")
+
+    if selected_subject:
+        tutors = tutors.filter(subjects__id=selected_subject)
+
+    tutors = tutors.prefetch_related("subjects").distinct()
+
+    return render(
+        request,
+        "tutoring/tutor_search.html",
+        {
+            "subjects": subjects,
+            "selected_subject": selected_subject,
+            "tutors": tutors,
+        },
     )
