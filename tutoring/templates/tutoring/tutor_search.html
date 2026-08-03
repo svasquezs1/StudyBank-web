@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Find a tutor | StudyBank{% endblock %}
+
+{% block content %}
+<section class="form-section">
+    <div class="form-card">
+        <p class="eyebrow">TUTOR SEARCH</p>
+
+        <h1>Find a tutor</h1>
+
+        <p class="form-description">
+            Select a subject to find approved tutors who can help you.
+        </p>
+
+        <form method="get" class="search-form">
+            <label for="subject">Subject</label>
+
+            <select name="subject" id="subject">
+                <option value="">All subjects</option>
+
+                {% for subject in subjects %}
+                    <option
+                        value="{{ subject.id }}"
+                        {% if selected_subject == subject.id|stringformat:"s" %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ subject.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="primary-button">
+                Search
+            </button>
+        </form>
+
+        <div class="tutor-results">
+            {% for tutor in tutors %}
+                <article class="tutor-card">
+                    <h2>{{ tutor.user.email }}</h2>
+
+                    <p>
+                        <strong>Subjects:</strong>
+                        {% for subject in tutor.subjects.all %}
+                            {{ subject.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </article>
+            {% empty %}
+                <p class="empty-message">
+                    No approved tutors were found for this subject.
+                </p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
