@@ -282,6 +282,8 @@ footer .brand-sm{font-family:'Fraunces',serif;font-weight:600;color:var(--paper)
 .form-row label{display:block;font-size:.82rem;color:var(--paper);margin-bottom:.4rem;font-weight:500}
 .form-row label .req{color:var(--amber)}
 .form-row input[type="text"],
+.form-row input[type="email"],
+.form-row input[type="password"],
 .form-row select{
   width:100%;background:var(--ink);border:1px solid var(--line);color:var(--paper);
   padding:.6rem .75rem;border-radius:8px;font-family:inherit;font-size:.9rem;
