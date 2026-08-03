@@ -1,7 +1,9 @@
 from django.urls import path
 
-app_name = 'tutoring'
+from . import views
+
+app_name = "tutoring"
 
 urlpatterns = [
-    # RF-09, RF-10, RF-11, RF-12 views will be added here
+    path("register/", views.register_tutor, name="register_tutor"),
 ]

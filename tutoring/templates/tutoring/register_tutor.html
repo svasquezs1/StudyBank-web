@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Register as tutor | StudyBank{% endblock %}
+
+{% block content %}
+<section class="form-section">
+    <div class="form-card">
+        <p class="eyebrow">TUTOR APPLICATION</p>
+
+        <h1>Register as a tutor</h1>
+
+        <p class="form-description">
+            Select the subjects you are able to teach. Your profile will remain
+            pending until it is reviewed by the StudyBank team.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <fieldset>
+                <legend>Subjects offered</legend>
+
+                {% for checkbox in form.subjects %}
+                    <label class="checkbox-option">
+                        {{ checkbox.tag }}
+                        <span>{{ checkbox.choice_label }}</span>
+                    </label>
+                {% endfor %}
+
+                {% if form.subjects.errors %}
+                    <div class="form-errors">
+                        {{ form.subjects.errors }}
+                    </div>
+                {% endif %}
+            </fieldset>
+
+            <button type="submit" class="primary-button">
+                Submit application
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}
