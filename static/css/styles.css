@@ -379,3 +379,97 @@ td .muted{color:var(--paper-dim);font-size:.8rem}
 .tbtn:hover{border-color:var(--amber);color:var(--amber)}
 .tbtn.ok:hover{border-color:var(--ok);color:var(--ok)}
 .tbtn.del:hover{border-color:var(--danger);color:var(--danger)}
+.form-section {
+    display: flex;
+    justify-content: center;
+    padding: 4rem 1.5rem;
+}
+
+.form-card {
+    width: 100%;
+    max-width: 760px;
+    padding: 2.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    background: rgba(24, 25, 31, 0.94);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+
+.form-card h1 {
+    margin: 0.75rem 0 1rem;
+    font-size: 2.4rem;
+}
+
+.form-description {
+    margin-bottom: 2rem;
+    color: #c7c4bb;
+    line-height: 1.6;
+}
+
+.form-card fieldset {
+    margin: 0;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+}
+
+.form-card legend {
+    padding: 0 0.5rem;
+    font-weight: 700;
+}
+
+.checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.8rem 0;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+}
+
+.checkbox-option:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.checkbox-option input {
+    width: 18px;
+    height: 18px;
+    accent-color: #d89a45;
+}
+
+.primary-button {
+    margin-top: 1.5rem;
+    padding: 0.9rem 1.4rem;
+    border: 0;
+    border-radius: 10px;
+    background: #d89a45;
+    color: #17181d;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.primary-button:hover {
+    filter: brightness(1.08);
+}
+
+.form-errors {
+    margin-top: 0.8rem;
+    color: #ff8b8b;
+}
+
+@media (max-width: 640px) {
+    .form-section {
+        padding: 2rem 1rem;
+    }
+
+    .form-card {
+        padding: 1.5rem;
+    }
+
+    .form-card h1 {
+        font-size: 2rem;
+    }
+}
