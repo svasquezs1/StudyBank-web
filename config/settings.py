@@ -152,3 +152,9 @@ else:
     MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = 'accounts.User'
+
+
+# TODO: update once RF-02 (login) is implemented — currently points to a
+# URL that does not exist yet, so unauthenticated users hitting a
+# @login_required view will get a 404 instead of the login page.
+LOGIN_URL = '/accounts/login/'
