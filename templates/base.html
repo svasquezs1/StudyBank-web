@@ -16,20 +16,48 @@
   <!-- ===================== NAVBAR ===================== -->
   <nav class="nav">
     <a href="{% url 'home' %}" class="brand">Study<span class="dot">Bank</span></a>
+
     <div class="nav-links">
-      <a href="{% url 'home' %}" class="{% block nav_home %}{% endblock %}">Home</a>
-      <a href="#" class="{% block nav_materials %}{% endblock %}">Materials</a>
-      <a href="#" class="{% block nav_tutors %}{% endblock %}">Tutors</a>
+      <a href="{% url 'home' %}" class="{% block nav_home %}{% endblock %}">
+        Home
+      </a>
+
+      <a href="#" class="{% block nav_materials %}{% endblock %}">
+        Materials
+      </a>
+
+      <a href="{% url 'tutoring:tutor_search' %}" class="{% block nav_tutors %}{% endblock %}">
+        Find tutors
+      </a>
 
       {% if user.is_authenticated %}
-        <a href="#" class="hide-sm {% block nav_profile %}{% endblock %}">Profile</a>
-        {% if user.is_staff %}
-          <a href="#" class="hide-sm {% block nav_admin %}{% endblock %}">Admin</a>
+        {% if not user.tutor_profile %}
+          <a href="{% url 'tutoring:register_tutor' %}">
+            Register as tutor
+          </a>
         {% endif %}
-        <a href="#" class="btn btn-ghost">Log out</a>
+
+        <a href="#" class="hide-sm {% block nav_profile %}{% endblock %}">
+          Profile
+        </a>
+
+        {% if user.is_staff %}
+          <a href="/admin/" class="hide-sm {% block nav_admin %}{% endblock %}">
+            Admin
+          </a>
+        {% endif %}
+
+        <a href="#" class="btn btn-ghost">
+          Log out
+        </a>
       {% else %}
-        <a href="#" class="btn btn-ghost">Log in</a>
-        <a href="#" class="btn btn-primary">Sign up</a>
+        <a href="#" class="btn btn-ghost">
+          Log in
+        </a>
+
+        <a href="#" class="btn btn-primary">
+          Sign up
+        </a>
       {% endif %}
     </div>
   </nav>
