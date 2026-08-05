@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload material — StudyBank{% endblock %}
+
+{% block content %}
+
+  <div class="page-head">
+    <h1>Upload material</h1>
+    <p>Share your notes, documents or past exams. Accepted formats: PDF, DOCX, PNG, JPG (max 20 MB).</p>
+  </div>
+
+  <section class="panel" style="max-width:560px;margin:0 auto">
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="form-row">
+          {% for error in form.non_field_errors %}
+            <p style="color:var(--danger)">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="form-row">
+        <label for="{{ form.title.id_for_label }}">Title <span class="req">*</span></label>
+        {{ form.title }}
+        {% for error in form.title.errors %}
+          <p style="color:var(--danger);font-size:.8rem;margin-top:.3rem">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="form-row two">
+        <div>
+          <label for="{{ form.course.id_for_label }}">Course <span class="req">*</span></label>
+          {{ form.course }}
+        </div>
+        <div>
+          <label for="{{ form.university.id_for_label }}">University <span class="req">*</span></label>
+          {{ form.university }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.file_type.id_for_label }}">File type <span class="req">*</span></label>
+        {{ form.file_type }}
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.file.id_for_label }}">File <span class="req">*</span></label>
+        {{ form.file }}
+        {% for error in form.file.errors %}
+          <p style="color:var(--danger);font-size:.8rem;margin-top:.3rem">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Upload material</button>
+      </div>
+    </form>
+
+  </section>
+
+{% endblock %}
