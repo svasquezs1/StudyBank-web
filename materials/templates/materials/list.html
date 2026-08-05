@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Materials — StudyBank{% endblock %}
+
+{% block nav_materials %}active{% endblock %}
+
+{% block content %}
+
+  <div class="page-head">
+    <h1>Study material</h1>
+    <p>Notes, documents and past exams shared by students.</p>
+  </div>
+
+  {% if user.is_authenticated %}
+    <div style="margin-bottom:1.5rem">
+      <a href="{% url 'materials:upload' %}" class="btn btn-primary">Upload material</a>
+    </div>
+  {% endif %}
+
+  <p class="result-count">Showing <strong style="color:var(--paper)">{{ materials|length }}</strong> materials</p>
+
+  <div class="mat-grid">
+    {% for material in materials %}
+      <article class="mat-card">
+        <div class="mat-top">
+          <span class="tag {{ material.file_type }}">{{ material.get_file_type_display }}</span>
+        </div>
+        <h3>{{ material.title }}</h3>
+        <div class="mat-meta">
+          <span><strong>{{ material.course }}</strong></span>
+          <span>{{ material.university }}</span>
+          <span>Uploaded by {{ material.uploaded_by }}</span>
+        </div>
+        <div class="mat-foot">
+          <a href="{{ material.file.url }}" class="btn btn-primary" style="padding:.4rem .8rem;font-size:.8rem" target="_blank">Download</a>
+        </div>
+      </article>
+    {% empty %}
+      <p>No materials uploaded yet.</p>
+    {% endfor %}
+  </div>
+
+{% endblock %}
