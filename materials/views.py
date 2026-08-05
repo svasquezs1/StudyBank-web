@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import MaterialForm
 from .models import Material
@@ -25,3 +25,12 @@ def upload(request):
 def material_list(request):
     materials = Material.objects.select_related('course', 'university', 'uploaded_by').all()
     return render(request, 'materials/list.html', {'materials': materials})
+
+
+@login_required
+def material_detail(request, pk):
+    material = get_object_or_404(
+        Material.objects.select_related('course', 'university', 'uploaded_by'),
+        pk=pk
+    )
+    return render(request, 'materials/detail.html', {'material': material})
