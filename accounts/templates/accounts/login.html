@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Log in — StudyBank{% endblock %}
+
+{% block content %}
+
+  <div class="page-head">
+    <h1>Log in</h1>
+    <p>Welcome back. Log in with your institutional email.</p>
+  </div>
+
+  <section class="panel" style="max-width:480px;margin:0 auto">
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="form-row">
+          {% for error in form.non_field_errors %}
+            <p style="color:var(--danger)">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="form-row">
+        <label for="{{ form.username.id_for_label }}">Institutional email <span class="req">*</span></label>
+        {{ form.username }}
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.password.id_for_label }}">Password <span class="req">*</span></label>
+        {{ form.password }}
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Log in</button>
+      </div>
+    </form>
+
+  </section>
+
+{% endblock %}

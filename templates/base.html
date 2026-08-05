@@ -47,12 +47,11 @@
           </a>
         {% endif %}
 
-        <a href="#" class="btn btn-ghost">
+        <a href="{% url 'accounts:logout' %}" class="btn btn-ghost">
           Log out
         </a>
       {% else %}
-        {# TODO: update once RF-02 (login) exists #}
-        <a href="#" class="btn btn-ghost">
+        <a href="{% url 'accounts:login' %}" class="btn btn-ghost">
           Log in
         </a>
 
