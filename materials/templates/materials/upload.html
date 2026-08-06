@@ -22,6 +22,7 @@
         </div>
       {% endif %}
 
+      <!-- Título -->
       <div class="form-row">
         <label for="{{ form.title.id_for_label }}">Title <span class="req">*</span></label>
         {{ form.title }}
@@ -30,6 +31,16 @@
         {% endfor %}
       </div>
 
+      <!-- Descripción (Campo Agregado) -->
+      <div class="form-row">
+        <label for="{{ form.description.id_for_label }}">Description <span style="color:var(--paper-dim);font-weight:normal;font-size:.8rem">(optional)</span></label>
+        {{ form.description }}
+        {% for error in form.description.errors %}
+          <p style="color:var(--danger);font-size:.8rem;margin-top:.3rem">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <!-- Curso y Universidad -->
       <div class="form-row two">
         <div>
           <label for="{{ form.course.id_for_label }}">Course <span class="req">*</span></label>
@@ -41,11 +52,13 @@
         </div>
       </div>
 
+      <!-- Tipo de archivo -->
       <div class="form-row">
         <label for="{{ form.file_type.id_for_label }}">File type <span class="req">*</span></label>
         {{ form.file_type }}
       </div>
 
+      <!-- Archivo -->
       <div class="form-row">
         <label for="{{ form.file.id_for_label }}">File <span class="req">*</span></label>
         {{ form.file }}

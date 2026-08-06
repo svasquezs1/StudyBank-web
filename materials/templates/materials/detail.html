@@ -23,8 +23,19 @@
   </div>
 
   <section class="panel" style="max-width:680px;margin:0 auto">
+
+    <!-- Mensajes de error/éxito si un archivo no existe al descargar -->
+    {% if messages %}
+      <div style="margin-bottom:1.5rem">
+        {% for message in messages %}
+          <div style="padding:.8rem 1rem;border-radius:8px;background:rgba(201,107,107,.15);border:1px solid var(--danger);color:var(--danger);font-size:.9rem">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
     
-    <!-- Criterio 2: Asignatura, Universidad, Autor y Fecha -->
+    <!-- Asignatura, Universidad, Subido por y Fecha -->
     <div class="mat-meta" style="font-size:.9rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem">
       <div>
         <span style="color:var(--paper-dim);display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">Subject / Course</span>
@@ -44,17 +55,19 @@
       </div>
     </div>
 
-    <!-- Criterio 2: Descripción opcional -->
-    {% if material.description %}
-      <div style="margin-bottom:1.5rem">
-        <h3 style="font-size:1rem;margin-bottom:.5rem;color:var(--amber);font-family:'Fraunces',serif">Description</h3>
-        <p style="color:var(--paper);line-height:1.6;font-size:.95rem;background:var(--ink);padding:1rem;border-radius:6px;border:1px solid var(--line)">
+    <!-- Descripción del material -->
+    <div style="margin-bottom:1.5rem">
+      <h3 style="font-size:1rem;margin-bottom:.5rem;color:var(--amber);font-family:'Fraunces',serif">Description</h3>
+      <div style="color:var(--paper);line-height:1.6;font-size:.95rem;background:var(--ink);padding:1rem;border-radius:6px;border:1px solid var(--line)">
+        {% if material.description %}
           {{ material.description }}
-        </p>
+        {% else %}
+          <span style="color:var(--paper-dim);font-style:italic">No description provided for this material.</span>
+        {% endif %}
       </div>
-    {% endif %}
+    </div>
 
-    <!-- Criterio 2 y 3: Indicador de archivo y botón de descarga/apertura -->
+    <!-- Indicador de archivo adjunto y Botones de acción (Ver / Descargar) -->
     <div style="background:var(--ink);padding:1.25rem;border-radius:8px;border:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
       <div style="display:flex;align-items:center;gap:.8rem">
         <div style="background:var(--amber);color:var(--ink);padding:.5rem .8rem;border-radius:6px;font-weight:bold;font-size:.85rem;letter-spacing:.05em">
@@ -62,13 +75,16 @@
         </div>
         <div>
           <p style="font-weight:600;margin:0;color:var(--paper);font-size:.95rem">{{ material.title }}</p>
-          <span style="font-size:.8rem;color:var(--paper-dim)">Attached Document</span>
+          <span style="font-size:.8rem;color:var(--paper-dim)">Attached File</span>
         </div>
       </div>
 
-      <div>
-        <a href="{{ material.file.url }}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-          View / Open File
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <a href="{{ material.file.url }}" class="btn btn-ghost" target="_blank" rel="noopener noreferrer">
+          View / Open
+        </a>
+        <a href="{% url 'materials:download' material.pk %}" class="btn btn-primary">
+          ⬇ Download
         </a>
       </div>
     </div>

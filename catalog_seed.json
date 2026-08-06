@@ -1,0 +1,24 @@
+[
+{
+  "model": "accounts.university",
+  "pk": 1,
+  "fields": {
+    "name": "Universidad EAFIT"
+  }
+},
+{
+  "model": "accounts.program",
+  "pk": 1,
+  "fields": {
+    "name": "Systems Engineering",
+    "university": 1
+  }
+},
+{
+  "model": "materials.course",
+  "pk": 1,
+  "fields": {
+    "name": "Calculus I"
+  }
+}
+]
