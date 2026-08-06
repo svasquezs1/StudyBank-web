@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ material.title }} — StudyBank{% endblock %}
+
+{% block nav_materials %}active{% endblock %}
+
+{% block content %}
+
+  <div style="margin-bottom:1.5rem">
+    <a href="{% url 'materials:list' %}" style="color:var(--paper-dim);font-size:.9rem;display:inline-flex;align-items:center;gap:.4rem">
+      &larr; Back to materials
+    </a>
+  </div>
+
+  <div class="page-head" style="margin-bottom:1.5rem">
+    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
+      <span class="tag {{ material.file_type }}">{{ material.get_file_type_display }}</span>
+      {% if material.file_extension %}
+        <span class="tag" style="background:var(--line);color:var(--paper)">{{ material.file_extension }}</span>
+      {% endif %}
+    </div>
+    <h1>{{ material.title }}</h1>
+  </div>
+
+  <section class="panel" style="max-width:680px;margin:0 auto">
+
+    <!-- Mensajes de error/éxito si un archivo no existe al descargar -->
+    {% if messages %}
+      <div style="margin-bottom:1.5rem">
+        {% for message in messages %}
+          <div style="padding:.8rem 1rem;border-radius:8px;background:rgba(201,107,107,.15);border:1px solid var(--danger);color:var(--danger);font-size:.9rem">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    
+    <!-- Asignatura, Universidad, Subido por y Fecha -->
+    <div class="mat-meta" style="font-size:.9rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem">
+      <div>
+        <span style="color:var(--paper-dim);display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">Subject / Course</span>
+        <strong style="color:var(--paper)">{{ material.course }}</strong>
+      </div>
+      <div>
+        <span style="color:var(--paper-dim);display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">University</span>
+        <strong style="color:var(--paper)">{{ material.university }}</strong>
+      </div>
+      <div>
+        <span style="color:var(--paper-dim);display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">Uploaded by</span>
+        <strong style="color:var(--paper)">{{ material.uploaded_by.first_name|default:material.uploaded_by.email }}</strong>
+      </div>
+      <div>
+        <span style="color:var(--paper-dim);display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">Upload Date</span>
+        <strong style="color:var(--paper)">{{ material.uploaded_at|date:"M d, Y" }}</strong>
+      </div>
+    </div>
+
+    <!-- Descripción del material -->
+    <div style="margin-bottom:1.5rem">
+      <h3 style="font-size:1rem;margin-bottom:.5rem;color:var(--amber);font-family:'Fraunces',serif">Description</h3>
+      <div style="color:var(--paper);line-height:1.6;font-size:.95rem;background:var(--ink);padding:1rem;border-radius:6px;border:1px solid var(--line)">
+        {% if material.description %}
+          {{ material.description }}
+        {% else %}
+          <span style="color:var(--paper-dim);font-style:italic">No description provided for this material.</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Indicador de archivo adjunto y Botones de acción (Ver / Descargar) -->
+    <div style="background:var(--ink);padding:1.25rem;border-radius:8px;border:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+      <div style="display:flex;align-items:center;gap:.8rem">
+        <div style="background:var(--amber);color:var(--ink);padding:.5rem .8rem;border-radius:6px;font-weight:bold;font-size:.85rem;letter-spacing:.05em">
+          {{ material.file_extension|default:"FILE" }}
+        </div>
+        <div>
+          <p style="font-weight:600;margin:0;color:var(--paper);font-size:.95rem">{{ material.title }}</p>
+          <span style="font-size:.8rem;color:var(--paper-dim)">Attached File</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <a href="{{ material.file.url }}" class="btn btn-ghost" target="_blank" rel="noopener noreferrer">
+          View / Open
+        </a>
+        <a href="{% url 'materials:download' material.pk %}" class="btn btn-primary">
+          ⬇ Download
+        </a>
+      </div>
+    </div>
+
+  </section>
+
+{% endblock %}

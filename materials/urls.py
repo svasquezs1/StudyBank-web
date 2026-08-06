@@ -7,5 +7,6 @@ app_name = 'materials'
 urlpatterns = [
     path('upload/', views.upload, name='upload'),
     path('', views.material_list, name='list'),
-    # RF-06, RF-07, RF-08 views will be added here
+    path('<int:pk>/', views.material_detail, name='detail'),
+    path('<int:pk>/download/', views.download_material, name='download'),
 ]

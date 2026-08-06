@@ -25,14 +25,23 @@
         <div class="mat-top">
           <span class="tag {{ material.file_type }}">{{ material.get_file_type_display }}</span>
         </div>
-        <h3>{{ material.title }}</h3>
+        
+        <!-- Criterio 1: Clic en el título abre la vista de detalle -->
+        <h3>
+          <a href="{% url 'materials:detail' material.pk %}" style="color:inherit;text-decoration:none">
+            {{ material.title }}
+          </a>
+        </h3>
+
         <div class="mat-meta">
           <span><strong>{{ material.course }}</strong></span>
           <span>{{ material.university }}</span>
           <span>Uploaded by {{ material.uploaded_by }}</span>
         </div>
+
+        <!-- Criterio 1: Clic en el enlace/botón lleva al detalle del material -->
         <div class="mat-foot">
-          <a href="{{ material.file.url }}" class="btn btn-primary" style="padding:.4rem .8rem;font-size:.8rem" target="_blank">Download</a>
+          <a href="{% url 'materials:detail' material.pk %}" class="btn btn-primary" style="padding:.4rem .8rem;font-size:.8rem">View Details</a>
         </div>
       </article>
     {% empty %}

@@ -199,6 +199,62 @@ footer .brand-sm{font-family:'Fraunces',serif;font-weight:600;color:var(--paper)
 
 .result-count{font-size:.85rem;color:var(--paper-dim);margin-bottom:1rem}
 
+/*
+=======Materials: formulario de subida=======
+*/
+/* Entradas de formulario normalizadas */
+.form-row input[type="text"],
+.form-row input[type="email"],
+.form-row input[type="password"],
+.form-row select,
+.form-row textarea {
+  width: 100%;
+  background: var(--ink);
+  border: 1px solid var(--line);
+  color: var(--paper);
+  padding: .65rem .75rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: .9rem;
+  box-sizing: border-box;
+}
+
+/* Ajustes específicos para el área de descripción */
+.form-row textarea {
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.5;
+}
+
+.form-row input::placeholder,
+.form-row textarea::placeholder {
+  color: var(--paper-dim);
+}
+
+/* Estilo para el input de tipo archivo (File) */
+.form-row input[type="file"] {
+  background: var(--ink);
+  border: 1px dashed var(--line);
+  padding: .6rem;
+  cursor: pointer;
+}
+
+.form-row input[type="file"]::file-selector-button {
+  background: var(--line);
+  color: var(--paper);
+  border: none;
+  padding: .4rem .8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: .8rem;
+  transition: background .15s;
+}
+
+.form-row input[type="file"]::file-selector-button:hover {
+  background: var(--amber);
+  color: var(--ink);
+}
+
 /* ===========================================================
    TUTORS
    =========================================================== */

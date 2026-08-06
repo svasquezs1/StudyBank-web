@@ -1,3 +1,4 @@
+import os
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
@@ -30,6 +31,7 @@ class Material(models.Model):
         LAB_REPORT = 'lab_report', 'Lab Report'
 
     title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='materials'
     )
@@ -50,3 +52,11 @@ class Material(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def file_extension(self):
+        """Devuelve la extensión del archivo en mayúsculas (ej. PDF, DOCX)"""
+        if self.file and hasattr(self.file, 'name'):
+            ext = os.path.splitext(self.file.name)[1]
+            return ext.replace('.', '').upper()
+        return ''
