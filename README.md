@@ -2,7 +2,7 @@
 
 > A collaborative web platform where university students share study materials and book tutoring sessions.
 
-StudyBank is a Django-based web application that helps university students overcome the lack of study resources and academic support. It works as a collaborative repository where students can upload, search, filter, download, and rate study materials by course and professor. It also connects students with tutors: users can register as tutors, set their availability, and receive session requests, while students can browse tutors and book in-person or virtual sessions.
+StudyBank is a Django-based web application that helps university students overcome the lack of study resources and academic support. It works as a collaborative repository where students can upload, search, filter, view the details of, and download study materials by course. It also connects students with tutors: users can register as tutors indicating the subjects they offer, and other students can search for tutors by subject.
 
 ---
 
@@ -20,12 +20,9 @@ StudyBank is a Django-based web application that helps university students overc
 
 ## ✨ Features
 
-- **Study materials**: upload PDFs, search and filter by university, program, course, professor, type, and semester.
-- **Ratings**: rate materials so the best resources stand out.
-- **Tutoring**: register as a tutor, set availability, and receive booking requests.
-- **Booking**: browse tutors and book in-person or virtual sessions.
-- **Institutional access**: registration restricted to `@eafit.edu.co` email addresses.
-- **User profiles**: personal profile showing uploaded materials and account options.
+Institutional accounts, study material sharing (upload, search, filter, view, download), and a tutoring directory (tutor registration and search by subject) are implemented as of Sprint 1. Ratings, tutoring requests, and notifications are planned for upcoming sprints.
+
+See the full, detailed list of requirements — implemented and planned — in the [Requirements Prioritisation](../../wiki/Requirements-Prioritisation) wiki page.
 
 ---
 
@@ -46,20 +43,19 @@ StudyBank is a Django-based web application that helps university students overc
 
 | Name | Role | GitHub | Email |
 |------|------|--------|-------|
-| [Gisel Lorena] | [] | [@gljaramilloc] | [gljaramilc@eafit.edu.co] |
-| [Samuel Serna] | [] | [@sserna12] | [sserna@eafit.edu.co] |
-| [Sebastian Vasquez] | [] | [@svasquezs1] | [svasquezs1@eafit.edu.co] |
-
+| Sebastián Vásquez | Backend — Accounts & Materials | [@svasquezs1](https://github.com/svasquezs1) | svasquezs1@eafit.edu.co |
+| Gisel Jaramillo | Backend — Materials | [@gljaramilloc](https://github.com/gljaramilloc) | gljaramilc@eafit.edu.co |
+| Samuel Serna | Backend — Tutoring | [@sserna12](https://github.com/sserna12) | sserna@eafit.edu.co |
 
 **Course:** Proyecto Integrador 1 (ST0251) — Universidad EAFIT
-**Professor:** [Mario Andres Jaramillo]
+**Professor:** Mario Andrés Jaramillo
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Python 3.11 or higher
+- Python 3.12 or higher
 - Git
 
 ### Installation
@@ -104,6 +100,7 @@ StudyBank is a Django-based web application that helps university students overc
    python manage.py migrate
    python manage.py createsuperuser
    ```
+   You will be prompted for an email (not a username), since accounts log in with their institutional email.
 
 6. **Run the development server**
    ```bash
@@ -119,8 +116,8 @@ StudyBank is a Django-based web application that helps university students overc
 StudyBank-web/
 ├── config/          # Project settings, main URLs, WSGI
 ├── accounts/        # Users, profiles, authentication
-├── materials/       # Study materials, filters, ratings
-├── tutoring/        # Tutors, availability, bookings
+├── materials/       # Study materials, filters, search
+├── tutoring/        # Tutors, subjects, search
 ├── templates/       # Shared HTML templates
 ├── static/          # CSS, JS, images
 ├── manage.py
@@ -132,10 +129,7 @@ StudyBank-web/
 
 ## 🌐 Deployment
 
-The application is deployed on **PythonAnywhere**, with user-uploaded files stored on **Cloudflare R2**.
-
-<!-- Cuando esté desplegado, agrega el enlace: -->
-**Live demo:** [https://TU_USUARIO.pythonanywhere.com](#)
+The application will be deployed on **PythonAnywhere**, with user-uploaded files stored on **Cloudflare R2**. Deployment is planned for a later sprint; a live demo link will be added here once available.
 
 See the deployment guide in the [Wiki](#-documentation) for full setup instructions.
 
