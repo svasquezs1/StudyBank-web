@@ -21,8 +21,13 @@ urlpatterns = [
         name="request_tutoring",
     ),
     path(
-        "requests/<int:request_id>/confirmation/",
-        views.tutoring_request_confirmation,
-        name="tutoring_request_confirmation",
+        "requests/",
+        views.my_tutoring_requests,
+        name="my_requests",
+    ),
+    path(
+        "requests/incoming/",
+        views.incoming_tutoring_requests,
+        name="incoming_requests",
     ),
 ]

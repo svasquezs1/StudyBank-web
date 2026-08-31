@@ -20,6 +20,11 @@ class TutoringRequestTests(TestCase):
             password=self.password,
         )
 
+        self.other_student = User.objects.create_user(
+            email="otherstudent@eafit.edu.co",
+            password=self.password,
+        )
+
         self.tutor_user = User.objects.create_user(
             email="tutor@eafit.edu.co",
             password=self.password,
@@ -35,6 +40,16 @@ class TutoringRequestTests(TestCase):
         )
 
         self.tutor.subjects.add(self.subject)
+
+    def create_request(self):
+        return TutoringRequest.objects.create(
+            student=self.student,
+            tutor=self.tutor,
+            subject=self.subject,
+            scheduled_at=timezone.now() + timedelta(days=2),
+            mode=TutoringRequest.Mode.VIRTUAL,
+            message="I need help with Calculus.",
+        )
 
     def test_authenticated_student_can_request_tutoring(self):
         self.client.login(
@@ -86,31 +101,8 @@ class TutoringRequestTests(TestCase):
         )
 
     def test_new_request_has_pending_status(self):
-        self.client.login(
-            email=self.student.email,
-            password=self.password,
-        )
+        tutoring_request = self.create_request()
 
-        scheduled_at = timezone.now() + timedelta(days=2)
-
-        self.client.post(
-            reverse(
-                "tutoring:request_tutoring",
-                args=[self.tutor.id],
-            ),
-            {
-                "subject": self.subject.id,
-                "scheduled_at": scheduled_at.strftime(
-                    "%Y-%m-%dT%H:%M"
-                ),
-                "mode": TutoringRequest.Mode.IN_PERSON,
-                "message": "I need help preparing for an exam.",
-            },
-        )
-
-        tutoring_request = TutoringRequest.objects.first()
-
-        self.assertIsNotNone(tutoring_request)
         self.assertEqual(
             tutoring_request.status,
             TutoringRequest.Status.PENDING,
@@ -197,3 +189,90 @@ class TutoringRequestTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+    def test_successful_request_redirects_to_my_requests(self):
+        self.client.login(
+            email=self.student.email,
+            password=self.password,
+        )
+
+        scheduled_at = timezone.now() + timedelta(days=2)
+
+        response = self.client.post(
+            reverse(
+                "tutoring:request_tutoring",
+                args=[self.tutor.id],
+            ),
+            {
+                "subject": self.subject.id,
+                "scheduled_at": scheduled_at.strftime(
+                    "%Y-%m-%dT%H:%M"
+                ),
+                "mode": TutoringRequest.Mode.VIRTUAL,
+                "message": "I need help with Calculus.",
+            },
+        )
+
+        expected_url = (
+            reverse("tutoring:my_requests")
+            + "?sent=1"
+        )
+
+        self.assertRedirects(
+            response,
+            expected_url,
+        )
+
+    def test_student_can_view_their_requests(self):
+        tutoring_request = self.create_request()
+
+        self.client.login(
+            email=self.student.email,
+            password=self.password,
+        )
+
+        response = self.client.get(
+            reverse("tutoring:my_requests")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            tutoring_request.subject.name,
+        )
+        self.assertContains(
+            response,
+            self.tutor_user.email,
+        )
+        self.assertContains(
+            response,
+            "Pending",
+        )
+
+    def test_tutor_can_view_incoming_requests(self):
+        tutoring_request = self.create_request()
+
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.get(
+            reverse("tutoring:incoming_requests")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            tutoring_request.student.email,
+        )
+        self.assertContains(
+            response,
+            tutoring_request.subject.name,
+        )
+        self.assertContains(
+            response,
+            "Pending",
+        )

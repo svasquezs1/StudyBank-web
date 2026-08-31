@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from .forms import TutorRegistrationForm, TutoringRequestForm
 from .models import Subject, TutoringRequest, TutorProfile
@@ -63,7 +64,6 @@ def request_tutoring(request, tutor_id):
         is_approved=True,
     )
 
-    # A tutor cannot request a tutoring session with themselves.
     if tutor.user_id == request.user.id:
         return redirect("tutoring:tutor_search")
 
@@ -80,8 +80,7 @@ def request_tutoring(request, tutor_id):
             tutoring_request.save()
 
             return redirect(
-                "tutoring:tutoring_request_confirmation",
-                request_id=tutoring_request.id,
+                f"{reverse('tutoring:my_requests')}?sent=1"
             )
     else:
         form = TutoringRequestForm(tutor=tutor)
@@ -97,21 +96,49 @@ def request_tutoring(request, tutor_id):
 
 
 @login_required
-def tutoring_request_confirmation(request, request_id):
-    tutoring_request = get_object_or_404(
-        TutoringRequest.objects.select_related(
-            "student",
+def my_tutoring_requests(request):
+    tutoring_requests = (
+        TutoringRequest.objects
+        .filter(student=request.user)
+        .select_related(
             "tutor__user",
             "subject",
-        ),
-        id=request_id,
-        student=request.user,
+        )
+    )
+
+    request_sent = request.GET.get("sent") == "1"
+
+    return render(
+        request,
+        "tutoring/my_requests.html",
+        {
+            "tutoring_requests": tutoring_requests,
+            "request_sent": request_sent,
+        },
+    )
+
+
+@login_required
+def incoming_tutoring_requests(request):
+    tutor = get_object_or_404(
+        TutorProfile,
+        user=request.user,
+        is_approved=True,
+    )
+
+    tutoring_requests = (
+        TutoringRequest.objects
+        .filter(tutor=tutor)
+        .select_related(
+            "student",
+            "subject",
+        )
     )
 
     return render(
         request,
-        "tutoring/request_confirmation.html",
+        "tutoring/incoming_requests.html",
         {
-            "tutoring_request": tutoring_request,
+            "tutoring_requests": tutoring_requests,
         },
     )
