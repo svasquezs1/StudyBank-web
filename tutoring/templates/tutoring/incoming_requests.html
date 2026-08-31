@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Incoming tutoring requests | StudyBank{% endblock %}
+
+{% block content %}
+
+<section class="form-section">
+    <div class="form-card">
+
+        <p class="eyebrow">TUTORING REQUESTS</p>
+
+        <h1>Incoming requests</h1>
+
+        <p class="form-description">
+            Review the tutoring requests sent to you by students.
+        </p>
+
+        <div class="tutor-results">
+
+            {% for tutoring_request in tutoring_requests %}
+
+                <article class="tutor-card">
+
+                    <h2>{{ tutoring_request.subject.name }}</h2>
+
+                    <p>
+                        <strong>Student:</strong>
+                        {{ tutoring_request.student.email }}
+                    </p>
+
+                    <p>
+                        <strong>Date and time:</strong>
+                        {{ tutoring_request.scheduled_at }}
+                    </p>
+
+                    <p>
+                        <strong>Mode:</strong>
+                        {{ tutoring_request.get_mode_display }}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        {{ tutoring_request.get_status_display }}
+                    </p>
+
+                    {% if tutoring_request.message %}
+                        <p>
+                            <strong>Message:</strong>
+                            {{ tutoring_request.message }}
+                        </p>
+                    {% endif %}
+
+                </article>
+
+            {% empty %}
+
+                <p class="empty-message">
+                    You do not have any incoming tutoring requests.
+                </p>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

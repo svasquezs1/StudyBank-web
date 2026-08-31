@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
-from .forms import TutorRegistrationForm
-from .models import Subject, TutorProfile
+from .forms import TutorRegistrationForm, TutoringRequestForm
+from .models import Subject, TutoringRequest, TutorProfile
 
 
 @login_required
@@ -51,5 +52,93 @@ def tutor_search(request):
             "subjects": subjects,
             "selected_subject": selected_subject,
             "tutors": tutors,
+        },
+    )
+
+
+@login_required
+def request_tutoring(request, tutor_id):
+    tutor = get_object_or_404(
+        TutorProfile.objects.select_related("user").prefetch_related("subjects"),
+        id=tutor_id,
+        is_approved=True,
+    )
+
+    if tutor.user_id == request.user.id:
+        return redirect("tutoring:tutor_search")
+
+    if request.method == "POST":
+        form = TutoringRequestForm(
+            request.POST,
+            tutor=tutor,
+        )
+
+        if form.is_valid():
+            tutoring_request = form.save(commit=False)
+            tutoring_request.student = request.user
+            tutoring_request.tutor = tutor
+            tutoring_request.save()
+
+            return redirect(
+                f"{reverse('tutoring:my_requests')}?sent=1"
+            )
+    else:
+        form = TutoringRequestForm(tutor=tutor)
+
+    return render(
+        request,
+        "tutoring/request_tutoring.html",
+        {
+            "form": form,
+            "tutor": tutor,
+        },
+    )
+
+
+@login_required
+def my_tutoring_requests(request):
+    tutoring_requests = (
+        TutoringRequest.objects
+        .filter(student=request.user)
+        .select_related(
+            "tutor__user",
+            "subject",
+        )
+    )
+
+    request_sent = request.GET.get("sent") == "1"
+
+    return render(
+        request,
+        "tutoring/my_requests.html",
+        {
+            "tutoring_requests": tutoring_requests,
+            "request_sent": request_sent,
+        },
+    )
+
+
+@login_required
+def incoming_tutoring_requests(request):
+    tutor = get_object_or_404(
+        TutorProfile,
+        user=request.user,
+        is_approved=True,
+    )
+
+    tutoring_requests = (
+        TutoringRequest.objects
+        .filter(tutor=tutor)
+        .select_related(
+            "student",
+            "subject",
+        )
+    )
+
+    return render(
+        request,
+        "tutoring/incoming_requests.html",
+        {
+            "tutoring_requests": tutoring_requests,
         },
     )
