@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Request sent | StudyBank{% endblock %}
+
+{% block content %}
+
+<section class="form-section">
+
+    <div class="form-card">
+
+        <p class="eyebrow">REQUEST SENT</p>
+
+        <h1>Your tutoring request was sent</h1>
+
+        <p class="form-description">
+            Your request has been successfully registered and is waiting
+            for the tutor's response.
+        </p>
+
+        <p>
+            <strong>Tutor:</strong>
+            {{ tutoring_request.tutor.user.email }}
+        </p>
+
+        <p>
+            <strong>Subject:</strong>
+            {{ tutoring_request.subject.name }}
+        </p>
+
+        <p>
+            <strong>Date and time:</strong>
+            {{ tutoring_request.scheduled_at }}
+        </p>
+
+        <p>
+            <strong>Mode:</strong>
+            {{ tutoring_request.get_mode_display }}
+        </p>
+
+        <p>
+            <strong>Status:</strong>
+            {{ tutoring_request.get_status_display }}
+        </p>
+
+        {% if tutoring_request.message %}
+            <p>
+                <strong>Message:</strong>
+                {{ tutoring_request.message }}
+            </p>
+        {% endif %}
+
+        <a
+            href="{% url 'tutoring:tutor_search' %}"
+            class="primary-button"
+        >
+            Back to tutors
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}
