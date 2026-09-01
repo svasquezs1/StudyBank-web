@@ -30,4 +30,14 @@ urlpatterns = [
         views.incoming_tutoring_requests,
         name="incoming_requests",
     ),
+    path(
+        "requests/<int:request_id>/accept/",
+        views.accept_tutoring_request,
+        name="accept_request",
+    ),
+    path(
+        "requests/<int:request_id>/reject/",
+        views.reject_tutoring_request,
+        name="reject_request",
+    ),
 ]

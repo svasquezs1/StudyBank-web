@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from .forms import TutorRegistrationForm, TutoringRequestForm
 from .models import Subject, TutoringRequest, TutorProfile
@@ -142,3 +143,47 @@ def incoming_tutoring_requests(request):
             "tutoring_requests": tutoring_requests,
         },
     )
+
+
+@login_required
+@require_POST
+def accept_tutoring_request(request, request_id):
+    tutor = get_object_or_404(
+        TutorProfile,
+        user=request.user,
+        is_approved=True,
+    )
+
+    tutoring_request = get_object_or_404(
+        TutoringRequest,
+        id=request_id,
+        tutor=tutor,
+    )
+
+    if tutoring_request.status == TutoringRequest.Status.PENDING:
+        tutoring_request.status = TutoringRequest.Status.ACCEPTED
+        tutoring_request.save(update_fields=["status", "updated_at"])
+
+    return redirect("tutoring:incoming_requests")
+
+
+@login_required
+@require_POST
+def reject_tutoring_request(request, request_id):
+    tutor = get_object_or_404(
+        TutorProfile,
+        user=request.user,
+        is_approved=True,
+    )
+
+    tutoring_request = get_object_or_404(
+        TutoringRequest,
+        id=request_id,
+        tutor=tutor,
+    )
+
+    if tutoring_request.status == TutoringRequest.Status.PENDING:
+        tutoring_request.status = TutoringRequest.Status.REJECTED
+        tutoring_request.save(update_fields=["status", "updated_at"])
+
+    return redirect("tutoring:incoming_requests")
