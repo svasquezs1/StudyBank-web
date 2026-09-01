@@ -87,12 +87,12 @@
                     </a>
                 {% endif %}
 
-                <a
-                    href="{% url 'accounts:logout' %}"
-                    class="btn btn-ghost"
-                >
-                    Log out
-                </a>
+                <form method="post" action="{% url 'accounts:logout' %}" style="display:inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-ghost" style="cursor:pointer">
+                        Log out
+                    </button>
+                </form>
 
             {% else %}
 
