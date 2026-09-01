@@ -51,6 +51,10 @@ class TutoringRequestTests(TestCase):
             message="I need help with Calculus.",
         )
 
+    # =========================================================
+    # RF-11 TESTS
+    # =========================================================
+
     def test_authenticated_student_can_request_tutoring(self):
         self.client.login(
             email=self.student.email,
@@ -66,9 +70,7 @@ class TutoringRequestTests(TestCase):
             ),
             {
                 "subject": self.subject.id,
-                "scheduled_at": scheduled_at.strftime(
-                    "%Y-%m-%dT%H:%M"
-                ),
+                "scheduled_at": scheduled_at.strftime("%Y-%m-%dT%H:%M"),
                 "mode": TutoringRequest.Mode.VIRTUAL,
                 "message": "I need help with Calculus.",
             },
@@ -123,9 +125,7 @@ class TutoringRequestTests(TestCase):
             ),
             {
                 "subject": self.subject.id,
-                "scheduled_at": past_date.strftime(
-                    "%Y-%m-%dT%H:%M"
-                ),
+                "scheduled_at": past_date.strftime("%Y-%m-%dT%H:%M"),
                 "mode": TutoringRequest.Mode.VIRTUAL,
                 "message": "Past request test.",
             },
@@ -205,9 +205,7 @@ class TutoringRequestTests(TestCase):
             ),
             {
                 "subject": self.subject.id,
-                "scheduled_at": scheduled_at.strftime(
-                    "%Y-%m-%dT%H:%M"
-                ),
+                "scheduled_at": scheduled_at.strftime("%Y-%m-%dT%H:%M"),
                 "mode": TutoringRequest.Mode.VIRTUAL,
                 "message": "I need help with Calculus.",
             },
@@ -275,4 +273,158 @@ class TutoringRequestTests(TestCase):
         self.assertContains(
             response,
             "Pending",
+        )
+
+    # =========================================================
+    # RF-12 TESTS
+    # =========================================================
+
+    def test_tutor_can_accept_pending_request(self):
+        tutoring_request = self.create_request()
+
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse(
+                "tutoring:accept_request",
+                args=[tutoring_request.id],
+            )
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("tutoring:incoming_requests"),
+        )
+
+        tutoring_request.refresh_from_db()
+
+        self.assertEqual(
+            tutoring_request.status,
+            TutoringRequest.Status.ACCEPTED,
+        )
+
+    def test_tutor_can_reject_pending_request(self):
+        tutoring_request = self.create_request()
+
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse(
+                "tutoring:reject_request",
+                args=[tutoring_request.id],
+            )
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("tutoring:incoming_requests"),
+        )
+
+        tutoring_request.refresh_from_db()
+
+        self.assertEqual(
+            tutoring_request.status,
+            TutoringRequest.Status.REJECTED,
+        )
+
+    def test_non_tutor_cannot_manage_request(self):
+        tutoring_request = self.create_request()
+
+        self.client.login(
+            email=self.student.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse(
+                "tutoring:accept_request",
+                args=[tutoring_request.id],
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            404,
+        )
+
+        tutoring_request.refresh_from_db()
+
+        self.assertEqual(
+            tutoring_request.status,
+            TutoringRequest.Status.PENDING,
+        )
+
+    def test_other_tutor_cannot_manage_request(self):
+        other_tutor_user = User.objects.create_user(
+            email="othertutor@eafit.edu.co",
+            password=self.password,
+        )
+
+        other_tutor = TutorProfile.objects.create(
+            user=other_tutor_user,
+            is_approved=True,
+        )
+
+        other_tutor.subjects.add(self.subject)
+
+        tutoring_request = self.create_request()
+
+        self.client.login(
+            email=other_tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse(
+                "tutoring:reject_request",
+                args=[tutoring_request.id],
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            404,
+        )
+
+        tutoring_request.refresh_from_db()
+
+        self.assertEqual(
+            tutoring_request.status,
+            TutoringRequest.Status.PENDING,
+        )
+
+    def test_decided_request_cannot_be_changed_again(self):
+        tutoring_request = self.create_request()
+
+        tutoring_request.status = TutoringRequest.Status.ACCEPTED
+        tutoring_request.save()
+
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse(
+                "tutoring:reject_request",
+                args=[tutoring_request.id],
+            )
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("tutoring:incoming_requests"),
+        )
+
+        tutoring_request.refresh_from_db()
+
+        self.assertEqual(
+            tutoring_request.status,
+            TutoringRequest.Status.ACCEPTED,
         )

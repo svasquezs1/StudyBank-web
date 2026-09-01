@@ -12,7 +12,7 @@
         <h1>Incoming requests</h1>
 
         <p class="form-description">
-            Review the tutoring requests sent to you by students.
+            Review and respond to tutoring requests sent to you by students.
         </p>
 
         <div class="tutor-results">
@@ -48,6 +48,51 @@
                             <strong>Message:</strong>
                             {{ tutoring_request.message }}
                         </p>
+                    {% endif %}
+
+                    {% if tutoring_request.status == "pending" %}
+
+                        <div class="request-actions">
+
+                            <form
+                                method="post"
+                                action="{% url 'tutoring:accept_request' tutoring_request.id %}"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="primary-button"
+                                >
+                                    Accept
+                                </button>
+                            </form>
+
+                            <form
+                                method="post"
+                                action="{% url 'tutoring:reject_request' tutoring_request.id %}"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-ghost"
+                                >
+                                    Reject
+                                </button>
+                            </form>
+
+                        </div>
+
+                    {% else %}
+
+                        <p>
+                            <strong>
+                                This request has already been
+                                {{ tutoring_request.get_status_display|lower }}.
+                            </strong>
+                        </p>
+
                     {% endif %}
 
                 </article>
