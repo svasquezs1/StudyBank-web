@@ -237,6 +237,7 @@ footer .brand-sm{font-family:'Fraunces',serif;font-weight:600;color:var(--paper)
   border: 1px dashed var(--line);
   padding: .6rem;
   cursor: pointer;
+  color: transparent;
 }
 
 .form-row input[type="file"]::file-selector-button {
