@@ -71,10 +71,7 @@
                     </a>
                 {% endif %}
 
-                <a
-                    href="#"
-                    class="hide-sm {% block nav_profile %}{% endblock %}"
-                >
+                <a href="{% url 'accounts:edit_profile' %}" class="hide-sm {% block nav_profile %}{% endblock %}">
                     Profile
                 </a>
 

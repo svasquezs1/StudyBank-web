@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit profile — StudyBank{% endblock %}
+
+{% block nav_profile %}active{% endblock %}
+
+{% block content %}
+
+  <div class="page-head">
+    <h1>Edit profile</h1>
+    <p>Update your name, university, program, and profile picture.</p>
+  </div>
+
+  <section class="panel" style="max-width:480px;margin:0 auto">
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="form-row">
+          <p style="color:var(--amber)">{{ message }}</p>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if user.profile_picture %}
+      <div class="form-row" style="text-align:center">
+        <img src="{{ user.profile_picture.url }}" alt="Current profile picture"
+             style="max-width:120px;border-radius:50%;margin-bottom:1rem">
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="form-row">
+          {% for error in form.non_field_errors %}
+            <p style="color:var(--danger)">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="form-row two">
+        <div>
+          <label for="{{ form.first_name.id_for_label }}">First name</label>
+          {{ form.first_name }}
+        </div>
+        <div>
+          <label for="{{ form.last_name.id_for_label }}">Last name</label>
+          {{ form.last_name }}
+        </div>
+      </div>
+
+      <div class="form-row two">
+        <div>
+          <label for="{{ form.university.id_for_label }}">University</label>
+          {{ form.university }}
+        </div>
+        <div>
+          <label for="{{ form.program.id_for_label }}">Program</label>
+          {{ form.program }}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.profile_picture.id_for_label }}">Profile picture</label>
+        {{ form.profile_picture }}
+        {% for error in form.profile_picture.errors %}
+          <p style="color:var(--danger);font-size:.8rem;margin-top:.3rem">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Save changes</button>
+      </div>
+    </form>
+
+  </section>
+
+{% endblock %}
+
