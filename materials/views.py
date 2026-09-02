@@ -71,20 +71,22 @@ def search_materials(request):
     query = request.GET.get('q', '').strip()
     selected_course = request.GET.get('course', '').strip()
 
-    # 1. Obtenemos los objetos de las materias para listar sus IDs y Nombres en el select
+    # 1. Si course es ForeignKey, obtenemos el nombre de la materia/curso relacionado
+    # Cambia 'course__name' según el nombre del campo de texto en tu modelo Course (ej. course__title)
     courses_list = Material.objects.values_list('course__name', flat=True).distinct().order_by('course__name')
 
     materials = Material.objects.all()
 
-    # 2. Búsqueda por palabra clave 
+    # 2. Búsqueda por texto libre (RF-05)
+    # Reemplazamos 'course__icontains' por 'course__name__icontains'
     if query:
         materials = materials.filter(
             Q(title__icontains=query) |
             Q(description__icontains=query) |
-            Q(course__name__icontains=query)  
+            Q(course__name__icontains=query)
         )
 
-    # 3. Filtrado por Materia vía ID 
+    # 3. Filtrado por Materia (RF-06)
     if selected_course:
         materials = materials.filter(course__name__iexact=selected_course)
 
