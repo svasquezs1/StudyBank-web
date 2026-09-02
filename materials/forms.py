@@ -17,3 +17,14 @@ class MaterialForm(forms.ModelForm):
             'university': forms.Select(),
             'file_type': forms.Select(),
         }
+
+class MaterialSearchForm(forms.Form):
+    q = forms.CharField(
+        required=False,
+        strip=True,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Buscar por título, materia o descripción...',
+            'class': 'form-control',
+            'type': 'search',
+        })
+    )

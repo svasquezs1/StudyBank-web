@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <h2>Buscar Materiales de Estudio</h2>
+    
+    <!-- Formulario de búsqueda -->
+    <form method="GET" action="{% url 'search_materials' %}" class="mb-4 d-flex gap-2">
+        {{ form.q }}
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search"></i> Buscar
+        </button>
+    </form>
+
+    <!-- Indicador de resultados -->
+    {% if is_searched %}
+        <p class="text-muted">
+            Se encontraron <strong>{{ total_results }}</strong> resultado(s) para '<strong>{{ query }}</strong>'
+        </p>
+    {% endif %}
+
+    <!-- Lista de Materiales -->
+    {% if results %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for material in results %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ material.title }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                Materia: {{ material.subject }}
+                            </h6>
+                            <p class="card-text">
+                                {{ material.description|truncatewords:20 }}
+                            </p>
+                        </div>
+                        <div class="card-footer text-muted small">
+                            Subido por: {{ material.uploader.username }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Estado de "No se encontraron resultados" -->
+        <div class="alert alert-info" role="alert">
+            <h4 class="alert-heading">No se encontraron resultados</h4>
+            <p>No hay materiales que coincidan con "<strong>{{ query }}</strong>".</p>
+            <hr>
+            <p class="mb-0">
+                Sugerencias:
+                <ul>
+                    <li>Asegúrate de que todas las palabras estén escritas correctamente.</li>
+                    <li>Prueba con términos más generales o con menos palabras clave.</li>
+                </ul>
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
