@@ -1,77 +1,137 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}StudyBank{% endblock %}</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}StudyBank{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
+
 <body>
 
-  <!-- ===================== NAVBAR ===================== -->
-  <nav class="nav">
-    <a href="{% url 'home' %}" class="brand">Study<span class="dot">Bank</span></a>
+    <!-- ===================== NAVBAR ===================== -->
 
-    <div class="nav-links">
-      <a href="{% url 'home' %}" class="{% block nav_home %}{% endblock %}">
-        Home
-      </a>
+    <nav class="nav">
 
-      <a href="{% url 'materials:list' %}" class="{% block nav_materials %}{% endblock %}">
-        Materials
-      </a>
-
-      <a href="{% url 'tutoring:tutor_search' %}" class="{% block nav_tutors %}{% endblock %}">
-        Find tutors
-      </a>
-
-      {% if user.is_authenticated %}
-        {% if not user.tutor_profile %}
-          <a href="{% url 'tutoring:register_tutor' %}">
-            Register as tutor
-          </a>
-        {% endif %}
-
-        <a href="#" class="hide-sm {% block nav_profile %}{% endblock %}">
-          Profile
+        <a href="{% url 'home' %}" class="brand">
+            Study<span class="dot">Bank</span>
         </a>
 
-        {% if user.is_staff %}
-          <a href="/admin/" class="hide-sm {% block nav_admin %}{% endblock %}">
-            Admin
-          </a>
-        {% endif %}
+        <div class="nav-links">
 
-        <a href="{% url 'accounts:logout' %}" class="btn btn-ghost">
-          Log out
-        </a>
-      {% else %}
-        <a href="{% url 'accounts:login' %}" class="btn btn-ghost">
-          Log in
-        </a>
+            <a
+                href="{% url 'home' %}"
+                class="{% block nav_home %}{% endblock %}"
+            >
+                Home
+            </a>
 
-        <a href="{% url 'accounts:register' %}" class="btn btn-primary">
-          Sign up
-        </a>
-      {% endif %}
-    </div>
-  </nav>
+            <a
+                href="{% url 'materials:list' %}"
+                class="{% block nav_materials %}{% endblock %}"
+            >
+                Materials
+            </a>
 
-  <!-- ===================== CONTENT ===================== -->
-  <main>
-    {% block content %}{% endblock %}
-  </main>
+            <a
+                href="{% url 'tutoring:tutor_search' %}"
+                class="{% block nav_tutors %}{% endblock %}"
+            >
+                Find tutors
+            </a>
 
-  <!-- ===================== FOOTER ===================== -->
-  <footer>
-    <span class="brand-sm">StudyBank</span>
-    <span>Proyecto Integrador 1 (ST0251) · Universidad EAFIT</span>
-  </footer>
+            {% if user.is_authenticated %}
+
+                <a href="{% url 'tutoring:my_requests' %}">
+                    My requests
+                </a>
+
+                {% if user.tutor_profile.is_approved %}
+                    <a href="{% url 'tutoring:incoming_requests' %}">
+                        Incoming requests
+                    </a>
+                {% endif %}
+
+                {% if not user.tutor_profile %}
+                    <a href="{% url 'tutoring:register_tutor' %}">
+                        Register as tutor
+                    </a>
+                {% endif %}
+
+                <a href="{% url 'accounts:edit_profile' %}" class="hide-sm {% block nav_profile %}{% endblock %}">
+                    Profile
+                </a>
+
+                {% if user.is_staff %}
+                    <a
+                        href="/admin/"
+                        class="hide-sm {% block nav_admin %}{% endblock %}"
+                    >
+                        Admin
+                    </a>
+                {% endif %}
+
+                <form method="post" action="{% url 'accounts:logout' %}" style="display:inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-ghost" style="cursor:pointer">
+                        Log out
+                    </button>
+                </form>
+
+            {% else %}
+
+                <a
+                    href="{% url 'accounts:login' %}"
+                    class="btn btn-ghost"
+                >
+                    Log in
+                </a>
+
+                <a
+                    href="{% url 'accounts:register' %}"
+                    class="btn btn-primary"
+                >
+                    Sign up
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </nav>
+
+    <!-- ===================== CONTENT ===================== -->
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- ===================== FOOTER ===================== -->
+
+    <footer>
+        <span class="brand-sm">
+            StudyBank
+        </span>
+
+        <span>
+            Proyecto Integrador 1 (ST0251) · Universidad EAFIT
+        </span>
+    </footer>
 
 </body>
+
 </html>

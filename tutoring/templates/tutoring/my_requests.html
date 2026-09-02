@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}My tutoring requests | StudyBank{% endblock %}
+
+{% block content %}
+
+<section class="form-section">
+    <div class="form-card">
+
+        <p class="eyebrow">MY TUTORING REQUESTS</p>
+
+        <h1>My requests</h1>
+
+        {% if request_sent %}
+            <p class="form-description">
+                <strong>Tutoring request sent successfully.</strong>
+                Your request is waiting for the tutor's response.
+            </p>
+        {% else %}
+            <p class="form-description">
+                Review the tutoring requests you have submitted.
+            </p>
+        {% endif %}
+
+        <div class="tutor-results">
+
+            {% for tutoring_request in tutoring_requests %}
+
+                <article class="tutor-card">
+
+                    <h2>{{ tutoring_request.subject.name }}</h2>
+
+                    <p>
+                        <strong>Tutor:</strong>
+                        {{ tutoring_request.tutor.user.email }}
+                    </p>
+
+                    <p>
+                        <strong>Date and time:</strong>
+                        {{ tutoring_request.scheduled_at }}
+                    </p>
+
+                    <p>
+                        <strong>Mode:</strong>
+                        {{ tutoring_request.get_mode_display }}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        {{ tutoring_request.get_status_display }}
+                    </p>
+
+                    {% if tutoring_request.message %}
+                        <p>
+                            <strong>Message:</strong>
+                            {{ tutoring_request.message }}
+                        </p>
+                    {% endif %}
+
+                </article>
+
+            {% empty %}
+
+                <p class="empty-message">
+                    You have not submitted any tutoring requests yet.
+                </p>
+
+            {% endfor %}
+
+        </div>
+
+        <a
+            href="{% url 'tutoring:tutor_search' %}"
+            class="primary-button"
+        >
+            Find a tutor
+        </a>
+
+    </div>
+</section>
+
+{% endblock %}

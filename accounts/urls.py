@@ -9,5 +9,5 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', LoginView.as_view(template_name='accounts/login.html'), name='login'),
     path('logout/', LogoutView.as_view(next_page='home'), name='logout'),
-    # RF-05 view will be added here
+    path('profile/edit/', views.edit_profile, name='edit_profile'),
 ]

@@ -3,8 +3,10 @@
 {% block title %}Find a tutor | StudyBank{% endblock %}
 
 {% block content %}
+
 <section class="form-section">
     <div class="form-card">
+
         <p class="eyebrow">TUTOR SEARCH</p>
 
         <h1>Find a tutor</h1>
@@ -14,6 +16,7 @@
         </p>
 
         <form method="get" class="search-form">
+
             <label for="subject">Subject</label>
 
             <select name="subject" id="subject">
@@ -34,26 +37,47 @@
             <button type="submit" class="primary-button">
                 Search
             </button>
+
         </form>
 
         <div class="tutor-results">
+
             {% for tutor in tutors %}
+
                 <article class="tutor-card">
+
                     <h2>{{ tutor.user.email }}</h2>
 
                     <p>
                         <strong>Subjects:</strong>
+
                         {% for subject in tutor.subjects.all %}
                             {{ subject.name }}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </p>
+
+                    {% if tutor.user != user %}
+                        <a
+                            href="{% url 'tutoring:request_tutoring' tutor.id %}"
+                            class="primary-button"
+                        >
+                            Request tutoring
+                        </a>
+                    {% endif %}
+
                 </article>
+
             {% empty %}
+
                 <p class="empty-message">
                     No approved tutors were found for this subject.
                 </p>
+
             {% endfor %}
+
         </div>
+
     </div>
 </section>
+
 {% endblock %}

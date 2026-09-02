@@ -5,9 +5,7 @@ from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q
 from .forms import MaterialForm
-from .models import Material,Course
-
-
+from .models import Material, Course
 
 
 @login_required
@@ -66,19 +64,18 @@ def download_material(request, pk):
         messages.error(request, 'An error occurred while attempting to download the file.')
         return redirect('materials:detail', pk=pk)
 
+
 @login_required
 def search_materials(request):
     query = request.GET.get('q', '').strip()
     selected_course = request.GET.get('course', '').strip()
 
-    # 1. Si course es ForeignKey, obtenemos el nombre de la materia/curso relacionado
-    # Cambia 'course__name' según el nombre del campo de texto en tu modelo Course (ej. course__title)
+    # 1. Obtenemos los nombres de las materias para listar en el select
     courses_list = Material.objects.values_list('course__name', flat=True).distinct().order_by('course__name')
 
     materials = Material.objects.all()
 
-    # 2. Búsqueda por texto libre (RF-05)
-    # Reemplazamos 'course__icontains' por 'course__name__icontains'
+    # 2. Búsqueda por palabra clave (RF-05)
     if query:
         materials = materials.filter(
             Q(title__icontains=query) |
