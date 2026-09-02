@@ -6,74 +6,19 @@
 
 {% block content %}
 
-  <!-- BARRA SUPERIOR: Título a la izquierda, Buscador/Filtro a la derecha -->
-  <div class="materials-top-bar" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
-    
-    <div class="page-head" style="margin-bottom: 0;">
-      <h1 style="margin-bottom: 0.5rem;">Study material</h1>
-      <p style="margin: 0; opacity: 0.8;">Notes, documents and past exams shared by students.</p>
-    </div>
-
-    {% if user.is_authenticated %}
-      <form action="{% url 'materials:search_materials' %}" method="GET" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-        
-        <!-- Buscador -->
-        <input 
-          type="search" 
-          name="q" 
-          value="{{ query|default:'' }}"
-          placeholder="Search materials..." 
-          class="input-field"
-          style="padding: 0.55rem 0.8rem; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: #fff; outline: none;"
-        >
-
-        <!-- Desplegable Filtro Materias (RF-06) -->
-        <select 
-          name="course" 
-          onchange="this.form.submit()"
-          style="padding: 0.55rem 0.8rem; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.2); background: #1a1d24; color: #fff; cursor: pointer; outline: none;"
-        >
-          <option value="">All Courses</option>
-          {% for course_item in courses_list %}
-            <option value="{{ course_item }}" {% if selected_course == course_item %}selected{% endif %}>
-              {{ course_item }}
-            </option>
-          {% endfor %}
-        </select>
-
-        <button type="submit" class="btn btn-primary" style="padding: 0.55rem 1rem;">Search</button>
-
-        {% if selected_course or query %}
-          <a href="{% url 'materials:search_materials' %}" style="color: #aaa; text-decoration: none; font-size: 0.85rem; margin-left: 0.25rem;">
-            ✕ Clear
-          </a>
-        {% endif %}
-      </form>
-    {% endif %}
-
+  <div class="page-head">
+    <h1>Study material</h1>
+    <p>Notes, documents and past exams shared by students.</p>
   </div>
 
-  <!-- BOTÓN SUBIR MATERIAL -->
   {% if user.is_authenticated %}
-    <div style="margin-bottom: 1.5rem;">
+    <div style="margin-bottom:1.5rem">
       <a href="{% url 'materials:upload' %}" class="btn btn-primary">Upload material</a>
     </div>
   {% endif %}
 
-  <!-- CONTADOR DE RESULTADOS -->
-  {% if is_searched %}
-    <p class="result-count" style="margin-bottom: 1.5rem; opacity: 0.8;">
-      Found <strong style="color: var(--paper, #f0e6d2);">{{ materials|length }}</strong> results 
-      {% if selected_course %}for course '<strong>{{ selected_course }}</strong>'{% endif %}
-      {% if query %}{% if selected_course %} and{% endif %} search '<strong>{{ query }}</strong>'{% endif %}
-    </p>
-  {% else %}
-    <p class="result-count" style="margin-bottom: 1.5rem; opacity: 0.8;">
-      Showing <strong style="color: var(--paper, #f0e6d2);">{{ materials|length }}</strong> materials
-    </p>
-  {% endif %}
+  <p class="result-count">Showing <strong style="color:var(--paper)">{{ materials|length }}</strong> materials</p>
 
-  <!-- GRID DE CARDS -->
   <div class="mat-grid">
     {% for material in materials %}
       <article class="mat-card">
@@ -81,8 +26,9 @@
           <span class="tag {{ material.file_type }}">{{ material.get_file_type_display }}</span>
         </div>
         
+        <!-- Criterio 1: Clic en el título abre la vista de detalle -->
         <h3>
-          <a href="{% url 'materials:detail' material.pk %}" style="color: inherit; text-decoration: none;">
+          <a href="{% url 'materials:detail' material.pk %}" style="color:inherit;text-decoration:none">
             {{ material.title }}
           </a>
         </h3>
@@ -93,19 +39,13 @@
           <span>Uploaded by {{ material.uploaded_by }}</span>
         </div>
 
+        <!-- Criterio 1: Clic en el enlace/botón lleva al detalle del material -->
         <div class="mat-foot">
-          <a href="{% url 'materials:detail' material.pk %}" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">View Details</a>
+          <a href="{% url 'materials:detail' material.pk %}" class="btn btn-primary" style="padding:.4rem .8rem;font-size:.8rem">View Details</a>
         </div>
       </article>
     {% empty %}
-      <div style="grid-column: 1 / -1; padding: 2.5rem; border: 1px dashed rgba(255, 255, 255, 0.2); border-radius: 8px; text-align: center;">
-        {% if selected_course %}
-          <p style="margin-bottom: 0.5rem; font-weight: 600;">No study materials found for course "{{ selected_course }}"</p>
-        {% else %}
-          <p style="margin-bottom: 0.5rem; font-weight: 600;">No study materials found for "{{ query }}"</p>
-        {% endif %}
-        <p style="font-size: 0.85rem; opacity: 0.7;">Try selecting "All Courses" or searching with different keywords.</p>
-      </div>
+      <p>No materials uploaded yet.</p>
     {% endfor %}
   </div>
 
