@@ -614,3 +614,28 @@ td .muted{color:var(--paper-dim);font-size:.8rem}
   font-size: 0.85rem;
   opacity: 0.7;
 }
+
+/* ===================== NOTIFICATIONS (RF-19, RF-20) ===================== */
+.nav-badge{
+  display:inline-block;min-width:1.2rem;padding:0 .35rem;margin-left:.3rem;
+  border-radius:999px;background:var(--amber);color:var(--ink);
+  font-size:.72rem;font-weight:600;text-align:center;line-height:1.2rem;
+}
+.notification-list{display:flex;flex-direction:column;gap:.8rem;margin:1.5rem 0}
+.notification-item{
+  background:var(--ink-soft);border:1px solid var(--line);border-radius:12px;
+  padding:1rem 1.2rem;
+}
+.notification-item.unread{border-color:var(--amber)}
+.notification-dot{
+  display:inline-block;width:.5rem;height:.5rem;border-radius:50%;
+  background:var(--amber);margin-right:.4rem;vertical-align:middle;
+}
+.notification-details{list-style:none;margin:.5rem 0 0;padding:0;color:var(--paper-dim);font-size:.88rem}
+.notification-details li{margin:.15rem 0}
+.notification-meta{color:var(--paper-dim);font-size:.82rem;margin-top:.5rem}
+.notification-meta a{color:var(--amber)}
+.visually-hidden{
+  position:absolute;width:1px;height:1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;
+}
