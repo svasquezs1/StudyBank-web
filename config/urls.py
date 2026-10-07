@@ -14,6 +14,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('materials/', include('materials.urls')),
     path('tutoring/', include('tutoring.urls')),
+    path('notifications/', include('notifications.urls')),
 ]
 
 if settings.DEBUG:
