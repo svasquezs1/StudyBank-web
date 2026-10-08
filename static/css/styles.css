@@ -50,10 +50,19 @@ a{color:inherit;text-decoration:none}
   border-bottom:1px solid var(--line);
 }
 .brand{
-  font-family:'Fraunces',serif;font-weight:900;
-  font-size:1.4rem;letter-spacing:-.02em;
-  display:flex;align-items:center;gap:.4rem;
+  display: flex;
+    align-items: center;
+    gap: .4rem;
 }
+   .brand img {
+    width: 39px !important;
+    height: 39px !important;
+    max-width: 39px !important;
+    max-height: 39px !important;
+    object-fit: contain;
+    display: block;
+}
+
 .brand .dot{color:var(--amber)}
 .nav-links{display:flex;gap:1.5rem;margin-left:auto;align-items:center;font-size:.92rem}
 .nav-links a{color:var(--paper-dim);transition:color .15s}
