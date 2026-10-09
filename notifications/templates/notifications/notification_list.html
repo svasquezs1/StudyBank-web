@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications | StudyBank{% endblock %}
+
+{% block nav_notifications %}active{% endblock %}
+
+{% block content %}
+
+<section class="form-section">
+    <div class="form-card">
+
+        <p class="eyebrow">NOTIFICATIONS</p>
+
+        <h1>Notifications</h1>
+
+        <p class="form-description">
+            Updates about your tutoring requests.
+        </p>
+
+        <div class="notification-list">
+
+            {% for notification in notifications %}
+
+                <article class="notification-item{% if not notification.is_read %} unread{% endif %}">
+
+                    <p>
+                        {% if not notification.is_read %}
+                            <span class="notification-dot"></span>
+                            <span class="visually-hidden">New:</span>
+                        {% endif %}
+                        {{ notification.message }}
+                    </p>
+
+                    {% with tutoring_request=notification.tutoring_request %}
+                        {% if tutoring_request %}
+                            <ul class="notification-details">
+                                <li>
+                                    <strong>Date and time:</strong>
+                                    {{ tutoring_request.scheduled_at|date:"d/m/Y H:i" }}
+                                </li>
+                                <li>
+                                    <strong>Mode:</strong>
+                                    {{ tutoring_request.get_mode_display }}
+                                </li>
+                                {% if tutoring_request.message %}
+                                    <li>
+                                        <strong>Notes:</strong>
+                                        {{ tutoring_request.message }}
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        {% endif %}
+                    {% endwith %}
+
+                    <p class="notification-meta">
+                        {{ notification.created_at|date:"d/m/Y H:i" }}
+                        {% if notification.link %}
+                            · <a href="{{ notification.link }}">View request →</a>
+                        {% endif %}
+                    </p>
+
+                </article>
+
+            {% empty %}
+
+                <p class="empty-message">
+                    You have no notifications yet.
+                </p>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
