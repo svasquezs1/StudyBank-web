@@ -650,3 +650,10 @@ td .muted{color:var(--paper-dim);font-size:.8rem}
   position:absolute;width:1px;height:1px;overflow:hidden;
   clip:rect(0 0 0 0);white-space:nowrap;
 }
+
+.notification-meta a{color:var(--amber)}
+.visually-hidden{
+  position:absolute;width:1px;height:1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;
+}
+

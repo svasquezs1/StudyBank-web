@@ -76,6 +76,16 @@
                     </a>
                 {% endif %}
 
+                <a
+                    href="{% url 'notifications:list' %}"
+                    class="{% block nav_notifications %}{% endblock %}"
+                >
+                    Notifications
+                    {% if unread_notifications_count %}
+                        <span class="nav-badge">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
+
                 <a href="{% url 'accounts:edit_profile' %}" class="hide-sm {% block nav_profile %}{% endblock %}">
                     Profile
                 </a>
