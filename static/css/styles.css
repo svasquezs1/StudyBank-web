@@ -643,7 +643,9 @@ td .muted{color:var(--paper-dim);font-size:.8rem}
 .notification-details{list-style:none;margin:.5rem 0 0;padding:0;color:var(--paper-dim);font-size:.88rem}
 .notification-details li{margin:.15rem 0}
 .notification-meta{color:var(--paper-dim);font-size:.82rem;margin-top:.5rem}
-.notification-meta a{color:var(--amber)}
+.notification-meta a{color:var(--amber)
+}
+
 .visually-hidden{
   position:absolute;width:1px;height:1px;overflow:hidden;
   clip:rect(0 0 0 0);white-space:nowrap;
