@@ -3,11 +3,20 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.db.models import Q
+from django.db.models import Avg, Count, F, OuterRef, Q, Subquery, Sum
+from django.db.models.functions import Coalesce
 from .forms import MaterialForm
 from .models import Material, Course, MaterialDownload, MaterialRating
 from django.views.decorators.http import require_POST
-from django.db.models import Avg, Count, Q
+from django.views.decorators.cache import never_cache
+
+# RF-14: opciones de ordenamiento del catálogo (valor del parámetro ?sort=, etiqueta visible)
+SORT_OPTIONS = [
+    ('newest', 'Newest'),
+    ('rating', 'Highest Rating'),
+    ('downloads', 'Most Downloaded'),
+]
+DEFAULT_SORT = 'newest'
 
 
 @login_required
@@ -60,10 +69,13 @@ def material_detail(request, pk):
 
 
 @login_required
+@never_cache
 def download_material(request, pk):
     """
     Inicia la descarga directa del archivo con cabeceras Content-Disposition.
     Verifica que el archivo exista en disco/almacenamiento antes de servirlo.
+    @never_cache evita que el navegador sirva descargas repetidas desde su caché:
+    cada clic debe llegar al servidor para que se sume al total (RF-14).
     """
     material = get_object_or_404(Material, pk=pk)
 
@@ -79,7 +91,9 @@ def download_material(request, pk):
         # RF-13: registrar la descarga (una fila por usuario/material) para habilitar la calificación.
         download, created = MaterialDownload.objects.get_or_create(material=material, user=request.user)
         if not created:
-            download.save(update_fields=['last_downloaded_at'])
+            # RF-14: cada descarga repetida suma al total del material (incremento atómico en la base de datos)
+            download.times_downloaded = F('times_downloaded') + 1
+            download.save(update_fields=['times_downloaded', 'last_downloaded_at'])
         return response
     except Exception:
         messages.error(request, 'An error occurred while attempting to download the file.')
@@ -90,13 +104,28 @@ def search_materials(request):
     query = request.GET.get('q', '').strip()
     selected_course = request.GET.get('course', '').strip()
 
+    # RF-14: criterio de ordenamiento (si el valor no es válido, se usa el predeterminado)
+    sort_by = request.GET.get('sort', DEFAULT_SORT).strip()
+    if sort_by not in dict(SORT_OPTIONS):
+        sort_by = DEFAULT_SORT
+
     # 1. Obtenemos los nombres de las materias para listar en el select
     courses_list = Material.objects.values_list('course__name', flat=True).distinct().order_by('course__name')
 
-    # RF-13: promedio y total de calificaciones de cada material en la misma consulta
+    # RF-14: total de descargas del material (suma de todas las descargas de todos los usuarios).
+    # Se calcula con una subconsulta para que no se multiplique al unirse con las calificaciones.
+    total_downloads = (
+        MaterialDownload.objects.filter(material=OuterRef('pk'))
+        .values('material')
+        .annotate(total=Sum('times_downloaded'))
+        .values('total')
+    )
+
+    # RF-13 / RF-14: promedio, total de calificaciones y total de descargas en la misma consulta
     materials = Material.objects.annotate(
         avg_rating=Avg('ratings__score'),
         num_ratings=Count('ratings', distinct=True),
+        download_total=Coalesce(Subquery(total_downloads), 0),
     )
 
     # 2. Búsqueda por palabra clave (RF-05)
@@ -111,7 +140,17 @@ def search_materials(request):
     if selected_course:
         materials = materials.filter(course__name__iexact=selected_course)
 
-    materials = materials.distinct().order_by('-uploaded_at')
+    # 4. Ordenamiento (RF-14). Siempre termina en -uploaded_at y -pk para que el orden sea determinista.
+    if sort_by == 'rating':
+        # Promedio de mayor a menor; sin calificaciones (promedio NULL) al final.
+        # Desempate: más calificaciones primero, luego el más reciente.
+        ordering = (F('avg_rating').desc(nulls_last=True), '-num_ratings', '-uploaded_at', '-pk')
+    elif sort_by == 'downloads':
+        ordering = ('-download_total', '-uploaded_at', '-pk')
+    else:
+        ordering = ('-uploaded_at', '-pk')
+
+    materials = materials.distinct().order_by(*ordering)
 
     context = {
         'materials': materials,
@@ -120,6 +159,8 @@ def search_materials(request):
         'selected_course': selected_course,
         'is_searched': bool(query or selected_course),
         'star_range': range(1, MaterialRating.MAX_SCORE + 1),
+        'sort_by': sort_by,
+        'sort_options': SORT_OPTIONS,
     }
     return render(request, 'materials/list.html', context)
 

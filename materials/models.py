@@ -99,6 +99,8 @@ class MaterialDownload(models.Model):
     )
     first_downloaded_at = models.DateTimeField(auto_now_add=True)
     last_downloaded_at = models.DateTimeField(auto_now=True)
+    # RF-14: total de veces que este usuario descargó el material (para "Most Downloaded")
+    times_downloaded = models.PositiveIntegerField(default=1)
 
     class Meta:
         constraints = [

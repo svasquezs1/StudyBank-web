@@ -18,7 +18,7 @@ class MaterialAdmin(admin.ModelAdmin):
 
 @admin.register(MaterialDownload)
 class MaterialDownloadAdmin(admin.ModelAdmin):
-    list_display = ('material', 'user', 'first_downloaded_at', 'last_downloaded_at')
+    list_display = ('material', 'user', 'times_downloaded', 'first_downloaded_at', 'last_downloaded_at')
     search_fields = ('material__title', 'user__email')
 
 
