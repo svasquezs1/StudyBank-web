@@ -10,5 +10,5 @@ urlpatterns = [
     path('<int:pk>/', views.material_detail, name='detail'),
     path('<int:pk>/download/', views.download_material, name='download'),
     path('search/', views.search_materials, name='search_materials'),
-    
+    path('<int:pk>/rate/', views.rate_material, name='rate'),
 ]

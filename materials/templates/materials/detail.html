@@ -24,11 +24,11 @@
 
   <section class="panel" style="max-width:680px;margin:0 auto">
 
-    <!-- Mensajes de error/éxito si un archivo no existe al descargar -->
+    <!-- Mensajes de feedback (descarga fallida, calificación guardada, etc.) -->
     {% if messages %}
       <div style="margin-bottom:1.5rem">
         {% for message in messages %}
-          <div style="padding:.8rem 1rem;border-radius:8px;background:rgba(201,107,107,.15);border:1px solid var(--danger);color:var(--danger);font-size:.9rem">
+          <div class="{% if message.tags == 'success' %}flash-success{% else %}flash-error{% endif %}" role="status" style="padding:.8rem 1rem;border-radius:8px;font-size:.9rem;margin-bottom:.5rem">
             {{ message }}
           </div>
         {% endfor %}
@@ -83,12 +83,143 @@
         <a href="{{ material.file.url }}" class="btn btn-ghost" target="_blank" rel="noopener noreferrer">
           View / Open
         </a>
-        <a href="{% url 'materials:download' material.pk %}" class="btn btn-primary">
+        <a href="{% url 'materials:download' material.pk %}" id="download-link" class="btn btn-primary">
           ⬇ Download
         </a>
       </div>
     </div>
 
+    <!-- RF-13: CALIFICACIÓN DEL MATERIAL -->
+    <style>
+      .flash-success{background:rgba(127,168,138,.15);border:1px solid var(--ok);color:var(--ok)}
+      .flash-error{background:rgba(201,107,107,.15);border:1px solid var(--danger);color:var(--danger)}
+
+      .rating-block{margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+      .rating-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem}
+      .rating-head h3{font-family:'Fraunces',serif;font-size:1rem;color:var(--amber);margin:0}
+      .rating-average{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+      .rating-average .stars{font-size:1.05rem;letter-spacing:1px}
+      .rating-figures{font-size:.9rem;color:var(--paper)}
+      .rating-figures strong{color:var(--amber)}
+      .rating-count{font-size:.85rem;color:var(--paper-dim)}
+
+      .rating-form{background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:1.1rem 1.25rem;display:flex;flex-direction:column;align-items:flex-start;gap:.9rem}
+      .rating-prompt{font-size:.88rem;color:var(--paper-dim);margin:0}
+
+      .rate-stars{display:flex;gap:.25rem}
+      .rate-star{background:none;border:0;padding:0 .1rem;margin:0;font-size:2.3rem;line-height:1;color:var(--line);cursor:pointer;transition:color .12s,transform .12s}
+      .rate-star.is-on{color:var(--amber)}
+      .rate-star:hover{transform:scale(1.12)}
+      .rate-star:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:4px}
+
+      .star-hint{font-size:.88rem;color:var(--paper)}
+      .rating-submit:disabled{opacity:.45;cursor:not-allowed}
+
+      .rating-locked{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;background:var(--ink);border:1px dashed var(--line);border-radius:8px;padding:.9rem 1rem}
+      .rating-locked .stars{font-size:1.4rem;letter-spacing:1px}
+      .rating-locked p{margin:0;font-size:.88rem;color:var(--paper-dim)}
+    </style>
+
+    <div class="rating-block">
+      <div class="rating-head">
+        <h3>Rating</h3>
+        <div class="rating-average">
+          {% if rating_count %}
+            <span class="stars" aria-hidden="true">
+              {% for i in star_range %}{% if i <= average_rating %}★{% else %}<span class="dim">★</span>{% endif %}{% endfor %}
+            </span>
+            <span class="rating-figures">
+              <strong>{{ average_rating }}</strong> / 5
+              <span class="rating-count">({{ rating_count }} rating{{ rating_count|pluralize }})</span>
+            </span>
+          {% else %}
+            <span class="rating-count">No ratings yet — be the first to rate it.</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if has_downloaded %}
+        <form method="post" action="{% url 'materials:rate' material.pk %}" class="rating-form" id="rating-form">
+          {% csrf_token %}
+          <input type="hidden" name="score" id="rating-score" value="{% if has_rated %}{{ user_score }}{% endif %}">
+
+          <p class="rating-prompt">
+            {% if has_rated %}You rated this material. Pick a new score to update your rating.
+            {% else %}Select a score from 1 to 5 stars.{% endif %}
+          </p>
+
+          <div class="rate-stars" id="star-input" role="radiogroup" aria-label="Your rating for this material">
+            {% for i in star_range %}
+              <button type="button" class="rate-star" data-value="{{ i }}" role="radio" aria-checked="false"
+                      title="{{ i }} star{{ i|pluralize }}" aria-label="Rate {{ i }} out of 5 stars">★</button>
+            {% endfor %}
+          </div>
+
+          <span class="star-hint" id="star-hint">{% if has_rated %}Your rating: {{ user_score }} / 5{% else %}No score selected{% endif %}</span>
+
+          <button type="submit" class="btn btn-primary rating-submit" {% if not has_rated %}disabled{% endif %}>
+            {% if has_rated %}Update rating{% else %}Submit rating{% endif %}
+          </button>
+        </form>
+
+        <script>
+          (function () {
+            var form = document.getElementById('rating-form');
+            if (!form) return;
+            var group = document.getElementById('star-input');
+            var input = document.getElementById('rating-score');
+            var hint = document.getElementById('star-hint');
+            var submit = form.querySelector('.rating-submit');
+            var stars = Array.prototype.slice.call(group.querySelectorAll('.rate-star'));
+            var selected = parseInt(input.value, 10) || 0;
+
+            // Enciende desde la estrella 1 hasta la estrella "n"
+            function paint(n) {
+              stars.forEach(function (star) {
+                var value = parseInt(star.getAttribute('data-value'), 10);
+                star.classList.toggle('is-on', value <= n);
+                star.setAttribute('aria-checked', value === selected ? 'true' : 'false');
+              });
+            }
+
+            stars.forEach(function (star) {
+              var value = parseInt(star.getAttribute('data-value'), 10);
+              star.addEventListener('mouseenter', function () { paint(value); });
+              star.addEventListener('click', function () {
+                selected = value;
+                input.value = value;
+                submit.disabled = false;
+                hint.textContent = 'Your selection: ' + value + ' / 5';
+                paint(selected);
+              });
+            });
+
+            group.addEventListener('mouseleave', function () { paint(selected); });
+            form.addEventListener('submit', function (e) { if (!selected) e.preventDefault(); });
+            paint(selected);
+          })();
+        </script>
+      {% else %}
+        <div class="rating-locked" role="note">
+          <span class="stars dim" aria-hidden="true">★★★★★</span>
+          <p>Download this material first to unlock rating.</p>
+        </div>
+      {% endif %}
+    </div>
+
   </section>
+
+  {% if not has_downloaded %}
+    <!-- RF-13: al descargar, recarga la página para habilitar el control de calificación -->
+    <script>
+      (function () {
+        var link = document.getElementById('download-link');
+        if (!link) return;
+        link.addEventListener('click', function () {
+          setTimeout(function () { window.location.reload(); }, 1500);
+        });
+      })();
+    </script>
+  {% endif %}
 
 {% endblock %}

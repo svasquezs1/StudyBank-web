@@ -26,9 +26,14 @@
 
     <nav class="nav">
 
-        <a href="{% url 'home' %}" class="brand">
-            Study<span class="dot">Bank</span>
-        </a>
+    <a href="{% url 'home' %}" class="brand">
+    <img
+        src="{% static 'images/studybank-logo.png' %}"
+        alt=""
+        style="width: 45px !important; height: 45px !important; max-width: 45px !important; max-height: 45px !important; object-fit: contain; display: block;"
+    >
+    <span>Study<span class="dot">Bank</span></span>
+</a>
 
         <div class="nav-links">
 
