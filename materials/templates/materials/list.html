@@ -94,6 +94,15 @@
         </div>
 
         <div class="mat-foot">
+          <!-- RF-13: calificación promedio del material -->
+          <div class="mat-rating" style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+            {% if material.num_ratings %}
+              <span class="stars" aria-hidden="true">{% for i in star_range %}{% if i <= material.avg_rating %}★{% else %}<span class="dim">★</span>{% endif %}{% endfor %}</span>
+              <span class="dl"><strong style="color: var(--paper)">{{ material.avg_rating|floatformat:1 }}</strong> ({{ material.num_ratings }})</span>
+            {% else %}
+              <span class="dl">No ratings yet</span>
+            {% endif %}
+          </div>
           <a href="{% url 'materials:detail' material.pk %}" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">View Details</a>
         </div>
       </article>
