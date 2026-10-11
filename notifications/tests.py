@@ -153,3 +153,79 @@ class NotificationListViewTests(NotificationTestBase):
         response = self.client.get(reverse("home"))
 
         self.assertContains(response, '<span class="nav-badge">1</span>', html=True)
+
+
+class NotifyStudentOfDecisionTests(NotificationTestBase):
+    """RF-20: notify the student as soon as the tutor accepts or rejects."""
+
+    def setUp(self):
+        super().setUp()
+        self.tutoring_request = self.create_request()
+        self.client.login(email=self.tutor_user.email, password=self.password)
+
+    def student_notifications(self):
+        return Notification.objects.filter(recipient=self.student)
+
+    def test_accepting_request_notifies_student(self):
+        self.tutor_user.first_name = "Carlos"
+        self.tutor_user.last_name = "Gomez"
+        self.tutor_user.save()
+
+        self.client.post(
+            reverse("tutoring:accept_request", args=[self.tutoring_request.id])
+        )
+
+        notification = self.student_notifications().get()
+        self.assertEqual(
+            notification.message,
+            "Tutor Carlos Gomez has accepted your tutoring request for Calculus.",
+        )
+        self.assertEqual(notification.tutoring_request, self.tutoring_request)
+        self.assertFalse(notification.is_read)
+
+    def test_rejecting_request_notifies_student(self):
+        self.client.post(
+            reverse("tutoring:reject_request", args=[self.tutoring_request.id])
+        )
+
+        self.assertEqual(
+            self.student_notifications().get().message,
+            "Tutor tutor@eafit.edu.co has rejected your tutoring request for Calculus.",
+        )
+
+    def test_link_points_to_the_specific_sent_request(self):
+        self.client.post(
+            reverse("tutoring:accept_request", args=[self.tutoring_request.id])
+        )
+
+        self.assertEqual(
+            self.student_notifications().get().link,
+            f"{reverse('tutoring:my_requests')}#request-{self.tutoring_request.id}",
+        )
+
+    def test_repeated_decision_does_not_duplicate_notification(self):
+        url = reverse("tutoring:accept_request", args=[self.tutoring_request.id])
+        self.client.post(url)
+        self.client.post(url)
+
+        self.assertEqual(self.student_notifications().count(), 1)
+
+    def test_saving_without_status_change_does_not_notify(self):
+        self.tutoring_request.message = "Updated message"
+        self.tutoring_request.save()
+
+        self.assertFalse(self.student_notifications().exists())
+
+    def test_student_sees_badge_and_status_in_list(self):
+        self.client.post(
+            reverse("tutoring:reject_request", args=[self.tutoring_request.id])
+        )
+        self.client.logout()
+        self.client.login(email=self.student.email, password=self.password)
+
+        home = self.client.get(reverse("home"))
+        self.assertContains(home, '<span class="nav-badge">1</span>', html=True)
+
+        response = self.client.get(reverse("notifications:list"))
+        self.assertContains(response, "has rejected your tutoring request")
+        self.assertContains(response, "Rejected")

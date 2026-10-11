@@ -3,11 +3,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.db.models import Q
+from django.db.models import Avg, Count, Q
 from .forms import MaterialForm
 from .models import Material, Course, MaterialDownload, MaterialRating
 from django.views.decorators.http import require_POST
-from django.db.models import Avg, Count, Q
 
 
 @login_required
@@ -57,7 +56,6 @@ def material_detail(request, pk):
         'star_range': range(1, MaterialRating.MAX_SCORE + 1),
     }
     return render(request, 'materials/detail.html', context)
-
 
 @login_required
 def download_material(request, pk):
@@ -148,4 +146,3 @@ def rate_material(request, pk):
     )
     messages.success(request, 'Thank you for rating this material!')
     return redirect('materials:detail', pk=pk)
-
