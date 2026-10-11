@@ -17,6 +17,10 @@ SORT_OPTIONS = [
     ('downloads', 'Most Downloaded'),
 ]
 DEFAULT_SORT = 'newest'
+from django.db.models import Avg, Count, Q
+from .forms import MaterialForm
+from .models import Material, Course, MaterialDownload, MaterialRating
+from django.views.decorators.http import require_POST
 
 
 @login_required
@@ -66,7 +70,6 @@ def material_detail(request, pk):
         'star_range': range(1, MaterialRating.MAX_SCORE + 1),
     }
     return render(request, 'materials/detail.html', context)
-
 
 @login_required
 @never_cache
@@ -189,4 +192,3 @@ def rate_material(request, pk):
     )
     messages.success(request, 'Thank you for rating this material!')
     return redirect('materials:detail', pk=pk)
-
