@@ -5,8 +5,7 @@ from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q
 from .forms import MaterialForm
-from .models import Material, Course
-
+from .models import Material
 
 @login_required
 def upload(request):
@@ -23,11 +22,14 @@ def upload(request):
 
     return render(request, 'materials/upload.html', {'form': form})
 
-
+@login_required
 def material_list(request):
-    materials = Material.objects.select_related('course', 'university', 'uploaded_by').all()
-    return render(request, 'materials/list.html', {'materials': materials})
-
+    """
+    Entry point from the main menu ("Materials").
+    Redirects to search_materials so the course filter (RF-06) is always populated
+    with the list of available courses. @login_required enforces RNF-05.
+    """
+    return redirect('materials:search_materials')
 
 @login_required
 def material_detail(request, pk):
@@ -40,7 +42,6 @@ def material_detail(request, pk):
         pk=pk
     )
     return render(request, 'materials/detail.html', {'material': material})
-
 
 @login_required
 def download_material(request, pk):
@@ -63,7 +64,6 @@ def download_material(request, pk):
     except Exception:
         messages.error(request, 'An error occurred while attempting to download the file.')
         return redirect('materials:detail', pk=pk)
-
 
 @login_required
 def search_materials(request):
