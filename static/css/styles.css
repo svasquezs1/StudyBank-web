@@ -50,19 +50,23 @@ a{color:inherit;text-decoration:none}
   border-bottom:1px solid var(--line);
 }
 .brand{
-  display: flex;
-    align-items: center;
-    gap: .4rem;
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+  font-family:'Fraunces',serif;
+  font-weight:900;
+  font-size:1.4rem;
+  letter-spacing:-.02em;
+  color:var(--paper);
 }
-   .brand img {
-    width: 39px !important;
-    height: 39px !important;
-    max-width: 39px !important;
-    max-height: 39px !important;
-    object-fit: contain;
-    display: block;
+.brand img{
+  width:39px !important;
+  height:39px !important;
+  max-width:39px !important;
+  max-height:39px !important;
+  object-fit:contain;
+  display:block;
 }
-
 .brand .dot{color:var(--amber)}
 .nav-links{display:flex;gap:1.5rem;margin-left:auto;align-items:center;font-size:.92rem}
 .nav-links a{color:var(--paper-dim);transition:color .15s}
@@ -87,14 +91,63 @@ main{flex:1;position:relative;z-index:1;width:100%;max-width:1080px;margin:0 aut
 .eyebrow{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:1rem}
 
 /* ---------- FOOTER ---------- */
-footer{
+.site-footer{
+  display:block;
   position:relative;z-index:1;
   border-top:1px solid var(--line);
-  padding:1.5rem 2rem;
-  color:var(--paper-dim);font-size:.85rem;
-  display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;
+  background:rgba(26,29,36,.92);
+  color:var(--paper-dim);font-size:.8rem;
 }
-footer .brand-sm{font-family:'Fraunces',serif;font-weight:600;color:var(--paper)}
+
+/* mismo ancho que main, para que las líneas coincidan con las del resto de la página */
+.footer-inner{
+  max-width:1080px;margin:0 auto;padding:0 2rem;
+}
+
+/* contacto a la izquierda, slogan abajo a la derecha */
+.footer-main{
+  display:grid;grid-template-columns:1fr auto;gap:2rem;
+  align-items:end;
+  padding:1.4rem 0;
+}
+
+.footer-contact{
+  display:grid;grid-template-columns:repeat(3,auto);
+  justify-content:space-between;gap:2rem;
+}
+.contact-item{display:flex;flex-direction:column;gap:.2rem}
+.contact-label{
+  font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--amber);font-weight:600;
+}
+.contact-item a{color:var(--paper);transition:color .15s}
+.contact-item a:hover{color:var(--amber)}
+.contact-item > span:not(.contact-label){color:var(--paper)}
+
+/* slogan destacado, alineado a la derecha y abajo */
+.footer-slogan{
+  text-align:right;
+  font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.1rem,2.2vw,1.5rem);letter-spacing:-.02em;line-height:1.25;
+  color:var(--paper);
+}
+.footer-slogan span{display:inline}
+.footer-slogan em{display:block;font-style:italic;color:var(--amber)}
+.footer-slogan em{font-style:italic;color:var(--amber)}
+
+/* barra inferior */
+.footer-bottom{
+  padding:.7rem 0 .9rem;
+  border-top:1px solid var(--line);
+  font-size:.74rem;
+}
+
+@media(max-width:760px){
+  .footer-inner{padding:0 1.1rem}
+  .footer-main{grid-template-columns:1fr;gap:1.2rem}
+  .footer-contact{grid-template-columns:1fr;gap:.8rem}
+  .footer-slogan{text-align:left}
+}
 
 /* ---------- ACCESIBILIDAD / RESPONSIVE ---------- */
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:4px}

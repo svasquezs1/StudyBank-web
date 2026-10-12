@@ -17,7 +17,7 @@
         rel="stylesheet"
     >
 
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=3">
 </head>
 
 <body>
@@ -136,15 +136,42 @@
     </main>
 
     <!-- ===================== FOOTER ===================== -->
+ 
+        <footer class="site-footer">
+        <div class="footer-inner">
 
-    <footer>
-        <span class="brand-sm">
-            StudyBank
-        </span>
+            <div class="footer-main">
 
-        <span>
-            Proyecto Integrador 1 (ST0251) · Universidad EAFIT
-        </span>
+                <div class="footer-contact">
+                    <div class="contact-item">
+                        <span class="contact-label">Email</span>
+                        <a href="mailto:contacto@studybank.com">contacto@studybank.com</a>
+                    </div>
+
+                    <div class="contact-item">
+                        <span class="contact-label">Phone</span>
+                        <a href="tel:+570000000000">+57 000 000 0000</a>
+                    </div>
+
+                    <div class="contact-item">
+                        <span class="contact-label">Location</span>
+                        <span>Universidad EAFIT · Medellín, Colombia</span>
+                    </div>
+                </div>
+
+                <p class="footer-slogan">
+                    Less Searching.
+                    <span>More Learning.</span>
+                    <em>Greater Success.</em>
+                </p>
+
+            </div>
+
+            <div class="footer-bottom">
+                <span>© {% now "Y" %} StudyBank. All rights reserved.</span>
+            </div>
+
+        </div>
     </footer>
 
 </body>
