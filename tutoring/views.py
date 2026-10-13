@@ -1,10 +1,23 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import (
+    get_object_or_404,
+    redirect,
+    render,
+)
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from .forms import TutorRegistrationForm, TutoringRequestForm
-from .models import Subject, TutoringRequest, TutorProfile
+from .forms import (
+    TutorRegistrationForm,
+    TutoringRatingForm,
+    TutoringRequestForm,
+)
+from .models import (
+    Subject,
+    TutoringRating,
+    TutoringRequest,
+    TutorProfile,
+)
 
 
 @login_required
@@ -13,38 +26,58 @@ def register_tutor(request):
         return redirect("home")
 
     if request.method == "POST":
-        form = TutorRegistrationForm(request.POST)
+        form = TutorRegistrationForm(
+            request.POST
+        )
 
         if form.is_valid():
-            tutor_profile = form.save(commit=False)
+            tutor_profile = form.save(
+                commit=False
+            )
+
             tutor_profile.user = request.user
             tutor_profile.save()
+
             form.save_m2m()
 
             return redirect("home")
+
     else:
         form = TutorRegistrationForm()
 
     return render(
         request,
         "tutoring/register_tutor.html",
-        {"form": form},
+        {
+            "form": form,
+        },
     )
 
 
 @login_required
 def tutor_search(request):
-    subjects = Subject.objects.all().order_by("name")
-    selected_subject = request.GET.get("subject")
+    subjects = Subject.objects.all().order_by(
+        "name"
+    )
+
+    selected_subject = request.GET.get(
+        "subject"
+    )
 
     tutors = TutorProfile.objects.filter(
         is_approved=True
-    ).select_related("user")
+    ).select_related(
+        "user"
+    )
 
     if selected_subject:
-        tutors = tutors.filter(subjects__id=selected_subject)
+        tutors = tutors.filter(
+            subjects__id=selected_subject
+        )
 
-    tutors = tutors.prefetch_related("subjects").distinct()
+    tutors = tutors.prefetch_related(
+        "subjects"
+    ).distinct()
 
     return render(
         request,
@@ -58,15 +91,22 @@ def tutor_search(request):
 
 
 @login_required
-def request_tutoring(request, tutor_id):
+def request_tutoring(
+    request,
+    tutor_id,
+):
     tutor = get_object_or_404(
-        TutorProfile.objects.select_related("user").prefetch_related("subjects"),
+        TutorProfile.objects
+        .select_related("user")
+        .prefetch_related("subjects"),
         id=tutor_id,
         is_approved=True,
     )
 
     if tutor.user_id == request.user.id:
-        return redirect("tutoring:tutor_search")
+        return redirect(
+            "tutoring:tutor_search"
+        )
 
     if request.method == "POST":
         form = TutoringRequestForm(
@@ -75,16 +115,26 @@ def request_tutoring(request, tutor_id):
         )
 
         if form.is_valid():
-            tutoring_request = form.save(commit=False)
-            tutoring_request.student = request.user
+            tutoring_request = form.save(
+                commit=False
+            )
+
+            tutoring_request.student = (
+                request.user
+            )
+
             tutoring_request.tutor = tutor
             tutoring_request.save()
 
             return redirect(
-                f"{reverse('tutoring:my_requests')}?sent=1"
+                f"{reverse('tutoring:my_requests')}"
+                "?sent=1"
             )
+
     else:
-        form = TutoringRequestForm(tutor=tutor)
+        form = TutoringRequestForm(
+            tutor=tutor
+        )
 
     return render(
         request,
@@ -100,14 +150,22 @@ def request_tutoring(request, tutor_id):
 def my_tutoring_requests(request):
     tutoring_requests = (
         TutoringRequest.objects
-        .filter(student=request.user)
+        .filter(
+            student=request.user
+        )
         .select_related(
             "tutor__user",
             "subject",
         )
     )
 
-    request_sent = request.GET.get("sent") == "1"
+    request_sent = (
+        request.GET.get("sent") == "1"
+    )
+
+    rating_saved = (
+        request.GET.get("rated") == "1"
+    )
 
     return render(
         request,
@@ -115,6 +173,7 @@ def my_tutoring_requests(request):
         {
             "tutoring_requests": tutoring_requests,
             "request_sent": request_sent,
+            "rating_saved": rating_saved,
         },
     )
 
@@ -129,7 +188,9 @@ def incoming_tutoring_requests(request):
 
     tutoring_requests = (
         TutoringRequest.objects
-        .filter(tutor=tutor)
+        .filter(
+            tutor=tutor
+        )
         .select_related(
             "student",
             "subject",
@@ -147,7 +208,10 @@ def incoming_tutoring_requests(request):
 
 @login_required
 @require_POST
-def accept_tutoring_request(request, request_id):
+def accept_tutoring_request(
+    request,
+    request_id,
+):
     tutor = get_object_or_404(
         TutorProfile,
         user=request.user,
@@ -160,16 +224,32 @@ def accept_tutoring_request(request, request_id):
         tutor=tutor,
     )
 
-    if tutoring_request.status == TutoringRequest.Status.PENDING:
-        tutoring_request.status = TutoringRequest.Status.ACCEPTED
-        tutoring_request.save(update_fields=["status", "updated_at"])
+    if (
+        tutoring_request.status
+        == TutoringRequest.Status.PENDING
+    ):
+        tutoring_request.status = (
+            TutoringRequest.Status.ACCEPTED
+        )
 
-    return redirect("tutoring:incoming_requests")
+        tutoring_request.save(
+            update_fields=[
+                "status",
+                "updated_at",
+            ]
+        )
+
+    return redirect(
+        "tutoring:incoming_requests"
+    )
 
 
 @login_required
 @require_POST
-def reject_tutoring_request(request, request_id):
+def reject_tutoring_request(
+    request,
+    request_id,
+):
     tutor = get_object_or_404(
         TutorProfile,
         user=request.user,
@@ -182,8 +262,133 @@ def reject_tutoring_request(request, request_id):
         tutor=tutor,
     )
 
-    if tutoring_request.status == TutoringRequest.Status.PENDING:
-        tutoring_request.status = TutoringRequest.Status.REJECTED
-        tutoring_request.save(update_fields=["status", "updated_at"])
+    if (
+        tutoring_request.status
+        == TutoringRequest.Status.PENDING
+    ):
+        tutoring_request.status = (
+            TutoringRequest.Status.REJECTED
+        )
 
-    return redirect("tutoring:incoming_requests")
+        tutoring_request.save(
+            update_fields=[
+                "status",
+                "updated_at",
+            ]
+        )
+
+    return redirect(
+        "tutoring:incoming_requests"
+    )
+
+
+@login_required
+@require_POST
+def complete_tutoring_request(
+    request,
+    request_id,
+):
+    tutor = get_object_or_404(
+        TutorProfile,
+        user=request.user,
+        is_approved=True,
+    )
+
+    tutoring_request = get_object_or_404(
+        TutoringRequest,
+        id=request_id,
+        tutor=tutor,
+    )
+
+    if (
+        tutoring_request.status
+        == TutoringRequest.Status.ACCEPTED
+    ):
+        tutoring_request.status = (
+            TutoringRequest.Status.COMPLETED
+        )
+
+        tutoring_request.save(
+            update_fields=[
+                "status",
+                "updated_at",
+            ]
+        )
+
+    return redirect(
+        "tutoring:incoming_requests"
+    )
+
+
+@login_required
+def rate_tutoring_request(
+    request,
+    request_id,
+):
+    tutoring_request = get_object_or_404(
+        TutoringRequest.objects.select_related(
+            "tutor__user",
+            "subject",
+        ),
+        id=request_id,
+        student=request.user,
+        status=TutoringRequest.Status.COMPLETED,
+    )
+
+    existing_rating = (
+        TutoringRating.objects
+        .filter(
+            tutoring_request=tutoring_request
+        )
+        .first()
+    )
+
+    if existing_rating is not None:
+        return render(
+            request,
+            "tutoring/rate_session.html",
+            {
+                "tutoring_request": tutoring_request,
+                "existing_rating": existing_rating,
+                "form": None,
+            },
+        )
+
+    if request.method == "POST":
+        form = TutoringRatingForm(
+            request.POST
+        )
+
+        if form.is_valid():
+            rating = form.save(
+                commit=False
+            )
+
+            rating.tutoring_request = (
+                tutoring_request
+            )
+
+            rating.student = request.user
+            rating.tutor = (
+                tutoring_request.tutor
+            )
+
+            rating.save()
+
+            return redirect(
+                f"{reverse('tutoring:my_requests')}"
+                "?rated=1"
+            )
+
+    else:
+        form = TutoringRatingForm()
+
+    return render(
+        request,
+        "tutoring/rate_session.html",
+        {
+            "tutoring_request": tutoring_request,
+            "existing_rating": None,
+            "form": form,
+        },
+    )

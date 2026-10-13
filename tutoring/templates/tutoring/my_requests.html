@@ -12,23 +12,43 @@
         <h1>My requests</h1>
 
         {% if request_sent %}
+
             <p class="form-description">
-                <strong>Tutoring request sent successfully.</strong>
+                <strong>
+                    Tutoring request sent successfully.
+                </strong>
                 Your request is waiting for the tutor's response.
             </p>
+
+        {% elif rating_saved %}
+
+            <p class="form-description">
+                <strong>
+                    Thank you for rating your tutoring session!
+                </strong>
+                Your rating has been saved successfully.
+            </p>
+
         {% else %}
+
             <p class="form-description">
                 Review the tutoring requests you have submitted.
             </p>
+
         {% endif %}
 
         <div class="tutor-results">
 
             {% for tutoring_request in tutoring_requests %}
 
-                <article class="tutor-card" id="request-{{ tutoring_request.id }}">
+                <article
+                    class="tutor-card"
+                    id="request-{{ tutoring_request.id }}"
+                >
 
-                    <h2>{{ tutoring_request.subject.name }}</h2>
+                    <h2>
+                        {{ tutoring_request.subject.name }}
+                    </h2>
 
                     <p>
                         <strong>Tutor:</strong>
@@ -51,10 +71,40 @@
                     </p>
 
                     {% if tutoring_request.message %}
+
                         <p>
                             <strong>Message:</strong>
                             {{ tutoring_request.message }}
                         </p>
+
+                    {% endif %}
+
+                    {% if tutoring_request.status == "completed" %}
+
+                        <div class="request-actions">
+
+                            {% if tutoring_request.rating %}
+
+                                <a
+                                    href="{% url 'tutoring:rate_request' tutoring_request.id %}"
+                                    class="btn btn-ghost"
+                                >
+                                    View rating
+                                </a>
+
+                            {% else %}
+
+                                <a
+                                    href="{% url 'tutoring:rate_request' tutoring_request.id %}"
+                                    class="primary-button"
+                                >
+                                    Rate session
+                                </a>
+
+                            {% endif %}
+
+                        </div>
+
                     {% endif %}
 
                 </article>
