@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Tutor availability | StudyBank{% endblock %}
+
+{% block content %}
+
+<section class="form-section">
+
+    <div class="form-card">
+
+        <p class="eyebrow">TUTOR AVAILABILITY</p>
+
+        <h1>Manage availability</h1>
+
+        <p class="form-description">
+            Add the days and time ranges when you are available for tutoring sessions.
+        </p>
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <button type="submit" class="primary-button">
+                Add availability
+            </button>
+
+        </form>
+
+        <hr style="margin: 2rem 0; border-color: var(--line);">
+
+        <h2>Current availability</h2>
+
+        <div class="tutor-results">
+
+            {% for slot in availability_slots %}
+
+                <article class="tutor-card">
+
+                    <div>
+
+                        <h3>
+                            {{ slot.get_day_of_week_display }}
+                        </h3>
+
+                        <p>
+                            <strong>From:</strong>
+                            {{ slot.start_time|time:"H:i" }}
+                        </p>
+
+                        <p>
+                            <strong>To:</strong>
+                            {{ slot.end_time|time:"H:i" }}
+                        </p>
+
+                    </div>
+
+                    <div class="request-actions">
+
+                        <a
+                            href="{% url 'tutoring:edit_availability' slot.id %}"
+                            class="btn btn-ghost"
+                        >
+                            Edit
+                        </a>
+
+                        <form
+                            method="post"
+                            action="{% url 'tutoring:delete_availability' slot.id %}"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="btn btn-ghost"
+                            >
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </article>
+
+            {% empty %}
+
+                <p class="empty-message">
+                    You have not configured any availability yet.
+                </p>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

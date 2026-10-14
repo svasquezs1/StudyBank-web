@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Edit availability | StudyBank{% endblock %}
+
+{% block content %}
+
+<section class="form-section">
+
+    <div class="form-card">
+
+        <p class="eyebrow">TUTOR AVAILABILITY</p>
+
+        <h1>Edit availability</h1>
+
+        <p class="form-description">
+            Update this tutoring availability time slot.
+        </p>
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <button type="submit" class="primary-button">
+                Save changes
+            </button>
+
+            <a
+                href="{% url 'tutoring:availability' %}"
+                class="btn btn-ghost"
+                style="margin-left: .5rem;"
+            >
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -16,6 +16,21 @@ urlpatterns = [
         name="tutor_search",
     ),
     path(
+        "availability/",
+        views.tutor_availability,
+        name="availability",
+    ),
+    path(
+        "availability/<int:availability_id>/edit/",
+        views.edit_availability,
+        name="edit_availability",
+    ),
+    path(
+        "availability/<int:availability_id>/delete/",
+        views.delete_availability,
+        name="delete_availability",
+    ),
+    path(
         "request/<int:tutor_id>/",
         views.request_tutoring,
         name="request_tutoring",

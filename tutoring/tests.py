@@ -1,11 +1,16 @@
-from datetime import timedelta
+from datetime import time, timedelta
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Subject, TutoringRequest, TutorProfile
+from .models import (
+    Subject,
+    TutorAvailability,
+    TutoringRequest,
+    TutorProfile,
+)
 
 
 User = get_user_model()
@@ -41,12 +46,41 @@ class TutoringRequestTests(TestCase):
 
         self.tutor.subjects.add(self.subject)
 
+    def get_future_datetime(self, days=2, hour=10):
+        future_date = timezone.localtime(
+            timezone.now() + timedelta(days=days)
+        )
+
+        return future_date.replace(
+            hour=hour,
+            minute=0,
+            second=0,
+            microsecond=0,
+        )
+
+    def create_availability_for_datetime(
+        self,
+        scheduled_at,
+        start_hour=9,
+        end_hour=11,
+    ):
+        local_datetime = timezone.localtime(
+            scheduled_at
+        )
+
+        return TutorAvailability.objects.create(
+            tutor=self.tutor,
+            day_of_week=local_datetime.weekday(),
+            start_time=time(start_hour, 0),
+            end_time=time(end_hour, 0),
+        )
+
     def create_request(self):
         return TutoringRequest.objects.create(
             student=self.student,
             tutor=self.tutor,
             subject=self.subject,
-            scheduled_at=timezone.now() + timedelta(days=2),
+            scheduled_at=self.get_future_datetime(),
             mode=TutoringRequest.Mode.VIRTUAL,
             message="I need help with Calculus.",
         )
@@ -61,7 +95,11 @@ class TutoringRequestTests(TestCase):
             password=self.password,
         )
 
-        scheduled_at = timezone.now() + timedelta(days=2)
+        scheduled_at = self.get_future_datetime()
+
+        self.create_availability_for_datetime(
+            scheduled_at
+        )
 
         response = self.client.post(
             reverse(
@@ -70,33 +108,48 @@ class TutoringRequestTests(TestCase):
             ),
             {
                 "subject": self.subject.id,
-                "scheduled_at": scheduled_at.strftime("%Y-%m-%dT%H:%M"),
+                "scheduled_at": scheduled_at.strftime(
+                    "%Y-%m-%dT%H:%M"
+                ),
                 "mode": TutoringRequest.Mode.VIRTUAL,
                 "message": "I need help with Calculus.",
             },
         )
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(TutoringRequest.objects.count(), 1)
+        self.assertEqual(
+            response.status_code,
+            302,
+        )
 
-        tutoring_request = TutoringRequest.objects.first()
+        self.assertEqual(
+            TutoringRequest.objects.count(),
+            1,
+        )
+
+        tutoring_request = (
+            TutoringRequest.objects.first()
+        )
 
         self.assertEqual(
             tutoring_request.student,
             self.student,
         )
+
         self.assertEqual(
             tutoring_request.tutor,
             self.tutor,
         )
+
         self.assertEqual(
             tutoring_request.subject,
             self.subject,
         )
+
         self.assertEqual(
             tutoring_request.mode,
             TutoringRequest.Mode.VIRTUAL,
         )
+
         self.assertEqual(
             tutoring_request.message,
             "I need help with Calculus.",
@@ -116,7 +169,10 @@ class TutoringRequestTests(TestCase):
             password=self.password,
         )
 
-        past_date = timezone.now() - timedelta(days=1)
+        past_date = (
+            timezone.now()
+            - timedelta(days=1)
+        )
 
         response = self.client.post(
             reverse(
@@ -125,14 +181,23 @@ class TutoringRequestTests(TestCase):
             ),
             {
                 "subject": self.subject.id,
-                "scheduled_at": past_date.strftime("%Y-%m-%dT%H:%M"),
+                "scheduled_at": past_date.strftime(
+                    "%Y-%m-%dT%H:%M"
+                ),
                 "mode": TutoringRequest.Mode.VIRTUAL,
                 "message": "Past request test.",
             },
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(TutoringRequest.objects.count(), 0)
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        self.assertEqual(
+            TutoringRequest.objects.count(),
+            0,
+        )
 
         self.assertContains(
             response,
@@ -140,7 +205,9 @@ class TutoringRequestTests(TestCase):
             "for a future date and time.",
         )
 
-    def test_tutor_cannot_request_tutoring_from_themselves(self):
+    def test_tutor_cannot_request_tutoring_from_themselves(
+        self
+    ):
         self.client.login(
             email=self.tutor_user.email,
             password=self.password,
@@ -163,7 +230,9 @@ class TutoringRequestTests(TestCase):
             0,
         )
 
-    def test_unapproved_tutor_cannot_receive_requests(self):
+    def test_unapproved_tutor_cannot_receive_requests(
+        self
+    ):
         unapproved_user = User.objects.create_user(
             email="unapproved@eafit.edu.co",
             password=self.password,
@@ -174,7 +243,9 @@ class TutoringRequestTests(TestCase):
             is_approved=False,
         )
 
-        unapproved_tutor.subjects.add(self.subject)
+        unapproved_tutor.subjects.add(
+            self.subject
+        )
 
         self.client.login(
             email=self.student.email,
@@ -188,15 +259,24 @@ class TutoringRequestTests(TestCase):
             )
         )
 
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            response.status_code,
+            404,
+        )
 
-    def test_successful_request_redirects_to_my_requests(self):
+    def test_successful_request_redirects_to_my_requests(
+        self
+    ):
         self.client.login(
             email=self.student.email,
             password=self.password,
         )
 
-        scheduled_at = timezone.now() + timedelta(days=2)
+        scheduled_at = self.get_future_datetime()
+
+        self.create_availability_for_datetime(
+            scheduled_at
+        )
 
         response = self.client.post(
             reverse(
@@ -205,7 +285,9 @@ class TutoringRequestTests(TestCase):
             ),
             {
                 "subject": self.subject.id,
-                "scheduled_at": scheduled_at.strftime("%Y-%m-%dT%H:%M"),
+                "scheduled_at": scheduled_at.strftime(
+                    "%Y-%m-%dT%H:%M"
+                ),
                 "mode": TutoringRequest.Mode.VIRTUAL,
                 "message": "I need help with Calculus.",
             },
@@ -233,16 +315,21 @@ class TutoringRequestTests(TestCase):
             reverse("tutoring:my_requests")
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
 
         self.assertContains(
             response,
             tutoring_request.subject.name,
         )
+
         self.assertContains(
             response,
             self.tutor_user.email,
         )
+
         self.assertContains(
             response,
             "Pending",
@@ -257,19 +344,26 @@ class TutoringRequestTests(TestCase):
         )
 
         response = self.client.get(
-            reverse("tutoring:incoming_requests")
+            reverse(
+                "tutoring:incoming_requests"
+            )
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
 
         self.assertContains(
             response,
             tutoring_request.student.email,
         )
+
         self.assertContains(
             response,
             tutoring_request.subject.name,
         )
+
         self.assertContains(
             response,
             "Pending",
@@ -296,7 +390,9 @@ class TutoringRequestTests(TestCase):
 
         self.assertRedirects(
             response,
-            reverse("tutoring:incoming_requests"),
+            reverse(
+                "tutoring:incoming_requests"
+            ),
         )
 
         tutoring_request.refresh_from_db()
@@ -323,7 +419,9 @@ class TutoringRequestTests(TestCase):
 
         self.assertRedirects(
             response,
-            reverse("tutoring:incoming_requests"),
+            reverse(
+                "tutoring:incoming_requests"
+            ),
         )
 
         tutoring_request.refresh_from_db()
@@ -371,7 +469,9 @@ class TutoringRequestTests(TestCase):
             is_approved=True,
         )
 
-        other_tutor.subjects.add(self.subject)
+        other_tutor.subjects.add(
+            self.subject
+        )
 
         tutoring_request = self.create_request()
 
@@ -399,10 +499,14 @@ class TutoringRequestTests(TestCase):
             TutoringRequest.Status.PENDING,
         )
 
-    def test_decided_request_cannot_be_changed_again(self):
+    def test_decided_request_cannot_be_changed_again(
+        self
+    ):
         tutoring_request = self.create_request()
 
-        tutoring_request.status = TutoringRequest.Status.ACCEPTED
+        tutoring_request.status = (
+            TutoringRequest.Status.ACCEPTED
+        )
         tutoring_request.save()
 
         self.client.login(
@@ -419,7 +523,9 @@ class TutoringRequestTests(TestCase):
 
         self.assertRedirects(
             response,
-            reverse("tutoring:incoming_requests"),
+            reverse(
+                "tutoring:incoming_requests"
+            ),
         )
 
         tutoring_request.refresh_from_db()
@@ -428,3 +534,300 @@ class TutoringRequestTests(TestCase):
             tutoring_request.status,
             TutoringRequest.Status.ACCEPTED,
         )
+
+    # =========================================================
+    # RF-15 TESTS
+    # =========================================================
+
+    def test_approved_tutor_can_view_availability_page(
+        self
+    ):
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.get(
+            reverse("tutoring:availability")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        self.assertContains(
+            response,
+            "Manage availability",
+        )
+
+    def test_non_tutor_cannot_view_availability_page(
+        self
+    ):
+        self.client.login(
+            email=self.student.email,
+            password=self.password,
+        )
+
+        response = self.client.get(
+            reverse("tutoring:availability")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            404,
+        )
+
+    def test_unauthenticated_user_is_redirected_from_availability(
+        self
+    ):
+        response = self.client.get(
+            reverse("tutoring:availability")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            302,
+        )
+
+    def test_tutor_can_create_availability_slot(self):
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse("tutoring:availability"),
+            {
+                "day_of_week": (
+                    TutorAvailability.DayOfWeek.MONDAY
+                ),
+                "start_time": "09:00",
+                "end_time": "11:00",
+            },
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("tutoring:availability"),
+        )
+
+        self.assertTrue(
+            TutorAvailability.objects.filter(
+                tutor=self.tutor,
+                day_of_week=(
+                    TutorAvailability.DayOfWeek.MONDAY
+                ),
+                start_time=time(9, 0),
+                end_time=time(11, 0),
+            ).exists()
+        )
+
+    def test_invalid_time_range_is_rejected(self):
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse("tutoring:availability"),
+            {
+                "day_of_week": (
+                    TutorAvailability.DayOfWeek.MONDAY
+                ),
+                "start_time": "12:00",
+                "end_time": "10:00",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        self.assertContains(
+            response,
+            "End time must be later than start time.",
+        )
+
+        self.assertEqual(
+            TutorAvailability.objects.count(),
+            0,
+        )
+
+    def test_overlapping_availability_is_rejected(self):
+        TutorAvailability.objects.create(
+            tutor=self.tutor,
+            day_of_week=(
+                TutorAvailability.DayOfWeek.MONDAY
+            ),
+            start_time=time(9, 0),
+            end_time=time(11, 0),
+        )
+
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse("tutoring:availability"),
+            {
+                "day_of_week": (
+                    TutorAvailability.DayOfWeek.MONDAY
+                ),
+                "start_time": "10:00",
+                "end_time": "12:00",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        self.assertContains(
+            response,
+            "This availability overlaps with "
+            "an existing time slot.",
+        )
+
+        self.assertEqual(
+            TutorAvailability.objects.count(),
+            1,
+        )
+
+    def test_tutor_can_edit_availability_slot(self):
+        availability = TutorAvailability.objects.create(
+            tutor=self.tutor,
+            day_of_week=(
+                TutorAvailability.DayOfWeek.MONDAY
+            ),
+            start_time=time(9, 0),
+            end_time=time(11, 0),
+        )
+
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse(
+                "tutoring:edit_availability",
+                args=[availability.id],
+            ),
+            {
+                "day_of_week": (
+                    TutorAvailability.DayOfWeek.MONDAY
+                ),
+                "start_time": "08:00",
+                "end_time": "10:00",
+            },
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("tutoring:availability"),
+        )
+
+        availability.refresh_from_db()
+
+        self.assertEqual(
+            availability.start_time,
+            time(8, 0),
+        )
+
+        self.assertEqual(
+            availability.end_time,
+            time(10, 0),
+        )
+
+    def test_tutor_can_delete_availability_slot(self):
+        availability = TutorAvailability.objects.create(
+            tutor=self.tutor,
+            day_of_week=(
+                TutorAvailability.DayOfWeek.MONDAY
+            ),
+            start_time=time(9, 0),
+            end_time=time(11, 0),
+        )
+
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse(
+                "tutoring:delete_availability",
+                args=[availability.id],
+            )
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("tutoring:availability"),
+        )
+
+        self.assertFalse(
+            TutorAvailability.objects.filter(
+                id=availability.id
+            ).exists()
+        )
+
+    def test_request_outside_tutor_availability_is_rejected(
+        self
+    ):
+        scheduled_at = self.get_future_datetime(
+            hour=15
+        )
+
+        local_datetime = timezone.localtime(
+            scheduled_at
+        )
+
+        TutorAvailability.objects.create(
+            tutor=self.tutor,
+            day_of_week=local_datetime.weekday(),
+            start_time=time(9, 0),
+            end_time=time(11, 0),
+        )
+
+        self.client.login(
+            email=self.student.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse(
+                "tutoring:request_tutoring",
+                args=[self.tutor.id],
+            ),
+            {
+                "subject": self.subject.id,
+                "scheduled_at": scheduled_at.strftime(
+                    "%Y-%m-%dT%H:%M"
+                ),
+                "mode": TutoringRequest.Mode.VIRTUAL,
+                "message": "Outside availability.",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        self.assertFormError(
+            response.context["form"],
+            "scheduled_at",
+            "The selected date and time is outside "
+            "the tutor's available schedule.",
+        )
+
+        self.assertEqual(
+            TutoringRequest.objects.count(),
+            0,
+        )
+        
