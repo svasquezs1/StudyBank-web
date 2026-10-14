@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import time, timedelta
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from .models import (
     Subject,
-    TutoringRating,
+    TutorAvailability,
     TutoringRequest,
     TutorProfile,
 )
@@ -44,42 +44,61 @@ class TutoringRequestTests(TestCase):
             is_approved=True,
         )
 
-        self.tutor.subjects.add(
-            self.subject
+        self.tutor.subjects.add(self.subject)
+
+    def get_future_datetime(self, days=2, hour=10):
+        future_date = timezone.localtime(
+            timezone.now() + timedelta(days=days)
         )
 
-    def create_request(
+        return future_date.replace(
+            hour=hour,
+            minute=0,
+            second=0,
+            microsecond=0,
+        )
+
+    def create_availability_for_datetime(
         self,
-        status=TutoringRequest.Status.PENDING,
+        scheduled_at,
+        start_hour=9,
+        end_hour=11,
     ):
+        local_datetime = timezone.localtime(
+            scheduled_at
+        )
+
+        return TutorAvailability.objects.create(
+            tutor=self.tutor,
+            day_of_week=local_datetime.weekday(),
+            start_time=time(start_hour, 0),
+            end_time=time(end_hour, 0),
+        )
+
+    def create_request(self):
         return TutoringRequest.objects.create(
             student=self.student,
             tutor=self.tutor,
             subject=self.subject,
-            scheduled_at=(
-                timezone.now()
-                + timedelta(days=2)
-            ),
+            scheduled_at=self.get_future_datetime(),
             mode=TutoringRequest.Mode.VIRTUAL,
             message="I need help with Calculus.",
-            status=status,
         )
 
     # =========================================================
     # RF-11 TESTS
     # =========================================================
 
-    def test_authenticated_student_can_request_tutoring(
-        self
-    ):
+    def test_authenticated_student_can_request_tutoring(self):
         self.client.login(
             email=self.student.email,
             password=self.password,
         )
 
-        scheduled_at = (
-            timezone.now()
-            + timedelta(days=2)
+        scheduled_at = self.get_future_datetime()
+
+        self.create_availability_for_datetime(
+            scheduled_at
         )
 
         response = self.client.post(
@@ -203,9 +222,7 @@ class TutoringRequestTests(TestCase):
 
         self.assertRedirects(
             response,
-            reverse(
-                "tutoring:tutor_search"
-            ),
+            reverse("tutoring:tutor_search"),
         )
 
         self.assertEqual(
@@ -221,11 +238,9 @@ class TutoringRequestTests(TestCase):
             password=self.password,
         )
 
-        unapproved_tutor = (
-            TutorProfile.objects.create(
-                user=unapproved_user,
-                is_approved=False,
-            )
+        unapproved_tutor = TutorProfile.objects.create(
+            user=unapproved_user,
+            is_approved=False,
         )
 
         unapproved_tutor.subjects.add(
@@ -257,9 +272,10 @@ class TutoringRequestTests(TestCase):
             password=self.password,
         )
 
-        scheduled_at = (
-            timezone.now()
-            + timedelta(days=2)
+        scheduled_at = self.get_future_datetime()
+
+        self.create_availability_for_datetime(
+            scheduled_at
         )
 
         response = self.client.post(
@@ -486,9 +502,12 @@ class TutoringRequestTests(TestCase):
     def test_decided_request_cannot_be_changed_again(
         self
     ):
-        tutoring_request = self.create_request(
-            status=TutoringRequest.Status.ACCEPTED,
+        tutoring_request = self.create_request()
+
+        tutoring_request.status = (
+            TutoringRequest.Status.ACCEPTED
         )
+        tutoring_request.save()
 
         self.client.login(
             email=self.tutor_user.email,
@@ -517,259 +536,107 @@ class TutoringRequestTests(TestCase):
         )
 
     # =========================================================
-    # RF-17 TESTS
+    # RF-15 TESTS
     # =========================================================
 
-    def test_tutor_can_mark_accepted_session_as_completed(
+    def test_approved_tutor_can_view_availability_page(
         self
     ):
-        tutoring_request = self.create_request(
-            status=TutoringRequest.Status.ACCEPTED,
-        )
-
         self.client.login(
             email=self.tutor_user.email,
             password=self.password,
         )
 
-        response = self.client.post(
-            reverse(
-                "tutoring:complete_request",
-                args=[tutoring_request.id],
-            )
+        response = self.client.get(
+            reverse("tutoring:availability")
         )
 
-        self.assertRedirects(
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        self.assertContains(
             response,
-            reverse(
-                "tutoring:incoming_requests"
-            ),
+            "Manage availability",
         )
 
-        tutoring_request.refresh_from_db()
-
-        self.assertEqual(
-            tutoring_request.status,
-            TutoringRequest.Status.COMPLETED,
-        )
-
-    def test_pending_session_cannot_be_marked_completed(
+    def test_non_tutor_cannot_view_availability_page(
         self
     ):
-        tutoring_request = self.create_request(
-            status=TutoringRequest.Status.PENDING,
-        )
-
-        self.client.login(
-            email=self.tutor_user.email,
-            password=self.password,
-        )
-
-        self.client.post(
-            reverse(
-                "tutoring:complete_request",
-                args=[tutoring_request.id],
-            )
-        )
-
-        tutoring_request.refresh_from_db()
-
-        self.assertEqual(
-            tutoring_request.status,
-            TutoringRequest.Status.PENDING,
-        )
-
-    def test_completed_session_shows_rate_session_button(
-        self
-    ):
-        tutoring_request = self.create_request(
-            status=TutoringRequest.Status.COMPLETED,
-        )
-
         self.client.login(
             email=self.student.email,
             password=self.password,
         )
 
         response = self.client.get(
-            reverse(
-                "tutoring:my_requests"
-            )
+            reverse("tutoring:availability")
         )
 
-        self.assertContains(
-            response,
-            "Rate session",
+        self.assertEqual(
+            response.status_code,
+            404,
         )
 
-        self.assertContains(
-            response,
-            reverse(
-                "tutoring:rate_request",
-                args=[tutoring_request.id],
-            ),
-        )
-
-    def test_accepted_session_does_not_show_rating_button(
+    def test_unauthenticated_user_is_redirected_from_availability(
         self
     ):
-        self.create_request(
-            status=TutoringRequest.Status.ACCEPTED,
-        )
-
-        self.client.login(
-            email=self.student.email,
-            password=self.password,
-        )
-
         response = self.client.get(
-            reverse(
-                "tutoring:my_requests"
-            )
+            reverse("tutoring:availability")
         )
 
-        self.assertNotContains(
-            response,
-            "Rate session",
+        self.assertEqual(
+            response.status_code,
+            302,
         )
 
-    def test_student_can_rate_completed_session(
-        self
-    ):
-        tutoring_request = self.create_request(
-            status=TutoringRequest.Status.COMPLETED,
-        )
-
+    def test_tutor_can_create_availability_slot(self):
         self.client.login(
-            email=self.student.email,
+            email=self.tutor_user.email,
             password=self.password,
         )
 
         response = self.client.post(
-            reverse(
-                "tutoring:rate_request",
-                args=[tutoring_request.id],
-            ),
+            reverse("tutoring:availability"),
             {
-                "score": 5,
-                "feedback": (
-                    "Excellent tutoring session."
+                "day_of_week": (
+                    TutorAvailability.DayOfWeek.MONDAY
                 ),
+                "start_time": "09:00",
+                "end_time": "11:00",
             },
         )
 
-        expected_url = (
-            reverse(
-                "tutoring:my_requests"
-            )
-            + "?rated=1"
-        )
-
         self.assertRedirects(
             response,
-            expected_url,
+            reverse("tutoring:availability"),
         )
 
-        self.assertEqual(
-            TutoringRating.objects.count(),
-            1,
+        self.assertTrue(
+            TutorAvailability.objects.filter(
+                tutor=self.tutor,
+                day_of_week=(
+                    TutorAvailability.DayOfWeek.MONDAY
+                ),
+                start_time=time(9, 0),
+                end_time=time(11, 0),
+            ).exists()
         )
 
-        rating = TutoringRating.objects.first()
-
-        self.assertEqual(
-            rating.tutoring_request,
-            tutoring_request,
-        )
-
-        self.assertEqual(
-            rating.student,
-            self.student,
-        )
-
-        self.assertEqual(
-            rating.tutor,
-            self.tutor,
-        )
-
-        self.assertEqual(
-            rating.score,
-            5,
-        )
-
-        self.assertEqual(
-            rating.feedback,
-            "Excellent tutoring session.",
-        )
-
-    def test_other_student_cannot_rate_session(
-        self
-    ):
-        tutoring_request = self.create_request(
-            status=TutoringRequest.Status.COMPLETED,
-        )
-
+    def test_invalid_time_range_is_rejected(self):
         self.client.login(
-            email=self.other_student.email,
-            password=self.password,
-        )
-
-        response = self.client.get(
-            reverse(
-                "tutoring:rate_request",
-                args=[tutoring_request.id],
-            )
-        )
-
-        self.assertEqual(
-            response.status_code,
-            404,
-        )
-
-    def test_non_completed_session_cannot_be_rated(
-        self
-    ):
-        tutoring_request = self.create_request(
-            status=TutoringRequest.Status.ACCEPTED,
-        )
-
-        self.client.login(
-            email=self.student.email,
-            password=self.password,
-        )
-
-        response = self.client.get(
-            reverse(
-                "tutoring:rate_request",
-                args=[tutoring_request.id],
-            )
-        )
-
-        self.assertEqual(
-            response.status_code,
-            404,
-        )
-
-    def test_rating_must_be_between_one_and_five(
-        self
-    ):
-        tutoring_request = self.create_request(
-            status=TutoringRequest.Status.COMPLETED,
-        )
-
-        self.client.login(
-            email=self.student.email,
+            email=self.tutor_user.email,
             password=self.password,
         )
 
         response = self.client.post(
-            reverse(
-                "tutoring:rate_request",
-                args=[tutoring_request.id],
-            ),
+            reverse("tutoring:availability"),
             {
-                "score": 6,
-                "feedback": "Invalid rating.",
+                "day_of_week": (
+                    TutorAvailability.DayOfWeek.MONDAY
+                ),
+                "start_time": "12:00",
+                "end_time": "10:00",
             },
         )
 
@@ -778,24 +645,153 @@ class TutoringRequestTests(TestCase):
             200,
         )
 
+        self.assertContains(
+            response,
+            "End time must be later than start time.",
+        )
+
         self.assertEqual(
-            TutoringRating.objects.count(),
+            TutorAvailability.objects.count(),
             0,
         )
 
-    def test_rating_cannot_be_submitted_twice(
-        self
-    ):
-        tutoring_request = self.create_request(
-            status=TutoringRequest.Status.COMPLETED,
+    def test_overlapping_availability_is_rejected(self):
+        TutorAvailability.objects.create(
+            tutor=self.tutor,
+            day_of_week=(
+                TutorAvailability.DayOfWeek.MONDAY
+            ),
+            start_time=time(9, 0),
+            end_time=time(11, 0),
         )
 
-        TutoringRating.objects.create(
-            tutoring_request=tutoring_request,
-            student=self.student,
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse("tutoring:availability"),
+            {
+                "day_of_week": (
+                    TutorAvailability.DayOfWeek.MONDAY
+                ),
+                "start_time": "10:00",
+                "end_time": "12:00",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        self.assertContains(
+            response,
+            "This availability overlaps with "
+            "an existing time slot.",
+        )
+
+        self.assertEqual(
+            TutorAvailability.objects.count(),
+            1,
+        )
+
+    def test_tutor_can_edit_availability_slot(self):
+        availability = TutorAvailability.objects.create(
             tutor=self.tutor,
-            score=5,
-            feedback="Excellent.",
+            day_of_week=(
+                TutorAvailability.DayOfWeek.MONDAY
+            ),
+            start_time=time(9, 0),
+            end_time=time(11, 0),
+        )
+
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse(
+                "tutoring:edit_availability",
+                args=[availability.id],
+            ),
+            {
+                "day_of_week": (
+                    TutorAvailability.DayOfWeek.MONDAY
+                ),
+                "start_time": "08:00",
+                "end_time": "10:00",
+            },
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("tutoring:availability"),
+        )
+
+        availability.refresh_from_db()
+
+        self.assertEqual(
+            availability.start_time,
+            time(8, 0),
+        )
+
+        self.assertEqual(
+            availability.end_time,
+            time(10, 0),
+        )
+
+    def test_tutor_can_delete_availability_slot(self):
+        availability = TutorAvailability.objects.create(
+            tutor=self.tutor,
+            day_of_week=(
+                TutorAvailability.DayOfWeek.MONDAY
+            ),
+            start_time=time(9, 0),
+            end_time=time(11, 0),
+        )
+
+        self.client.login(
+            email=self.tutor_user.email,
+            password=self.password,
+        )
+
+        response = self.client.post(
+            reverse(
+                "tutoring:delete_availability",
+                args=[availability.id],
+            )
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("tutoring:availability"),
+        )
+
+        self.assertFalse(
+            TutorAvailability.objects.filter(
+                id=availability.id
+            ).exists()
+        )
+
+    def test_request_outside_tutor_availability_is_rejected(
+        self
+    ):
+        scheduled_at = self.get_future_datetime(
+            hour=15
+        )
+
+        local_datetime = timezone.localtime(
+            scheduled_at
+        )
+
+        TutorAvailability.objects.create(
+            tutor=self.tutor,
+            day_of_week=local_datetime.weekday(),
+            start_time=time(9, 0),
+            end_time=time(11, 0),
         )
 
         self.client.login(
@@ -805,12 +801,16 @@ class TutoringRequestTests(TestCase):
 
         response = self.client.post(
             reverse(
-                "tutoring:rate_request",
-                args=[tutoring_request.id],
+                "tutoring:request_tutoring",
+                args=[self.tutor.id],
             ),
             {
-                "score": 1,
-                "feedback": "Second rating.",
+                "subject": self.subject.id,
+                "scheduled_at": scheduled_at.strftime(
+                    "%Y-%m-%dT%H:%M"
+                ),
+                "mode": TutoringRequest.Mode.VIRTUAL,
+                "message": "Outside availability.",
             },
         )
 
@@ -819,143 +819,15 @@ class TutoringRequestTests(TestCase):
             200,
         )
 
-        self.assertEqual(
-            TutoringRating.objects.count(),
-            1,
-        )
-
-        rating = TutoringRating.objects.get(
-            tutoring_request=tutoring_request
-        )
-
-        self.assertEqual(
-            rating.score,
-            5,
-        )
-
-        self.assertContains(
-            response,
-            "already been rated",
-        )
-
-    def test_existing_rating_is_read_only(
-        self
-    ):
-        tutoring_request = self.create_request(
-            status=TutoringRequest.Status.COMPLETED,
-        )
-
-        TutoringRating.objects.create(
-            tutoring_request=tutoring_request,
-            student=self.student,
-            tutor=self.tutor,
-            score=4,
-            feedback="Very helpful.",
-        )
-
-        self.client.login(
-            email=self.student.email,
-            password=self.password,
-        )
-
-        response = self.client.get(
-            reverse(
-                "tutoring:rate_request",
-                args=[tutoring_request.id],
-            )
+        self.assertFormError(
+            response.context["form"],
+            "scheduled_at",
+            "The selected date and time is outside "
+            "the tutor's available schedule.",
         )
 
         self.assertEqual(
-            response.status_code,
-            200,
+            TutoringRequest.objects.count(),
+            0,
         )
-
-        self.assertContains(
-            response,
-            "4 / 5",
-        )
-
-        self.assertContains(
-            response,
-            "Very helpful.",
-        )
-
-        self.assertContains(
-            response,
-            "already been rated",
-        )
-
-        self.assertNotContains(
-            response,
-            "Submit rating",
-        )
-
-    def test_tutor_average_rating_is_calculated_dynamically(
-        self
-    ):
-        first_request = self.create_request(
-            status=TutoringRequest.Status.COMPLETED,
-        )
-
-        second_student = User.objects.create_user(
-            email="secondstudent@eafit.edu.co",
-            password=self.password,
-        )
-
-        second_request = (
-            TutoringRequest.objects.create(
-                student=second_student,
-                tutor=self.tutor,
-                subject=self.subject,
-                scheduled_at=(
-                    timezone.now()
-                    + timedelta(days=3)
-                ),
-                mode=TutoringRequest.Mode.VIRTUAL,
-                status=TutoringRequest.Status.COMPLETED,
-            )
-        )
-
-        TutoringRating.objects.create(
-            tutoring_request=first_request,
-            student=self.student,
-            tutor=self.tutor,
-            score=5,
-        )
-
-        TutoringRating.objects.create(
-            tutoring_request=second_request,
-            student=second_student,
-            tutor=self.tutor,
-            score=3,
-        )
-
-        self.assertEqual(
-            self.tutor.average_rating,
-            4.0,
-        )
-
-        self.assertEqual(
-            self.tutor.ratings_count,
-            2,
-        )
-
-    def test_rating_success_message_is_displayed(
-        self
-    ):
-        self.client.login(
-            email=self.student.email,
-            password=self.password,
-        )
-
-        response = self.client.get(
-            reverse(
-                "tutoring:my_requests"
-            )
-            + "?rated=1"
-        )
-
-        self.assertContains(
-            response,
-            "Thank you for rating your tutoring session!",
-        )
+        

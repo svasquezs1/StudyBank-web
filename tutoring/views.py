@@ -9,12 +9,14 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from .forms import (
+    TutorAvailabilityForm,
     TutorRegistrationForm,
     TutoringRatingForm,
     TutoringRequestForm,
 )
 from .models import (
     Subject,
+    TutorAvailability,
     TutoringRating,
     TutoringRequest,
     TutorProfile,
@@ -35,14 +37,11 @@ def register_tutor(request):
             tutor_profile = form.save(
                 commit=False
             )
-
             tutor_profile.user = request.user
             tutor_profile.save()
-
             form.save_m2m()
 
             return redirect("home")
-
     else:
         form = TutorRegistrationForm()
 
@@ -160,6 +159,125 @@ def tutor_search(request):
             "selected_sort": selected_sort,
             "tutors": tutors,
         },
+    )
+
+
+@login_required
+def tutor_availability(request):
+    tutor = get_object_or_404(
+        TutorProfile,
+        user=request.user,
+        is_approved=True,
+    )
+
+    availability_slots = (
+        TutorAvailability.objects.filter(
+            tutor=tutor
+        )
+    )
+
+    if request.method == "POST":
+        form = TutorAvailabilityForm(
+            request.POST,
+            tutor=tutor,
+        )
+
+        if form.is_valid():
+            availability = form.save(
+                commit=False
+            )
+
+            availability.tutor = tutor
+            availability.save()
+
+            return redirect(
+                "tutoring:availability"
+            )
+
+    else:
+        form = TutorAvailabilityForm(
+            tutor=tutor
+        )
+
+    return render(
+        request,
+        "tutoring/availability.html",
+        {
+            "form": form,
+            "availability_slots": availability_slots,
+        },
+    )
+
+
+@login_required
+def edit_availability(
+    request,
+    availability_id,
+):
+    tutor = get_object_or_404(
+        TutorProfile,
+        user=request.user,
+        is_approved=True,
+    )
+
+    availability = get_object_or_404(
+        TutorAvailability,
+        id=availability_id,
+        tutor=tutor,
+    )
+
+    if request.method == "POST":
+        form = TutorAvailabilityForm(
+            request.POST,
+            instance=availability,
+            tutor=tutor,
+        )
+
+        if form.is_valid():
+            form.save()
+
+            return redirect(
+                "tutoring:availability"
+            )
+
+    else:
+        form = TutorAvailabilityForm(
+            instance=availability,
+            tutor=tutor,
+        )
+
+    return render(
+        request,
+        "tutoring/edit_availability.html",
+        {
+            "form": form,
+            "availability": availability,
+        },
+    )
+
+
+@login_required
+@require_POST
+def delete_availability(
+    request,
+    availability_id,
+):
+    tutor = get_object_or_404(
+        TutorProfile,
+        user=request.user,
+        is_approved=True,
+    )
+
+    availability = get_object_or_404(
+        TutorAvailability,
+        id=availability_id,
+        tutor=tutor,
+    )
+
+    availability.delete()
+
+    return redirect(
+        "tutoring:availability"
     )
 
 

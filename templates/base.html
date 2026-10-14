@@ -26,14 +26,14 @@
 
     <nav class="nav">
 
-    <a href="{% url 'home' %}" class="brand">
-    <img
-        src="{% static 'images/studybank-logo.png' %}"
-        alt=""
-        style="width: 45px !important; height: 45px !important; max-width: 45px !important; max-height: 45px !important; object-fit: contain; display: block;"
-    >
-    <span>Study<span class="dot">Bank</span></span>
-</a>
+        <a href="{% url 'home' %}" class="brand">
+            <img
+                src="{% static 'images/studybank-logo.png' %}"
+                alt=""
+                style="width: 45px !important; height: 45px !important; max-width: 45px !important; max-height: 45px !important; object-fit: contain; display: block;"
+            >
+            <span>Study<span class="dot">Bank</span></span>
+        </a>
 
         <div class="nav-links">
 
@@ -65,15 +65,23 @@
                 </a>
 
                 {% if user.tutor_profile.is_approved %}
+
                     <a href="{% url 'tutoring:incoming_requests' %}">
                         Incoming requests
                     </a>
+
+                    <a href="{% url 'tutoring:availability' %}">
+                        Availability
+                    </a>
+
                 {% endif %}
 
                 {% if not user.tutor_profile %}
+
                     <a href="{% url 'tutoring:register_tutor' %}">
                         Register as tutor
                     </a>
+
                 {% endif %}
 
                 <a
@@ -81,27 +89,45 @@
                     class="{% block nav_notifications %}{% endblock %}"
                 >
                     Notifications
+
                     {% if unread_notifications_count %}
-                        <span class="nav-badge">{{ unread_notifications_count }}</span>
+                        <span class="nav-badge">
+                            {{ unread_notifications_count }}
+                        </span>
                     {% endif %}
+
                 </a>
 
-                <a href="{% url 'accounts:edit_profile' %}" class="hide-sm {% block nav_profile %}{% endblock %}">
+                <a
+                    href="{% url 'accounts:edit_profile' %}"
+                    class="hide-sm {% block nav_profile %}{% endblock %}"
+                >
                     Profile
                 </a>
 
                 {% if user.is_staff %}
+
                     <a
                         href="/admin/"
                         class="hide-sm {% block nav_admin %}{% endblock %}"
                     >
                         Admin
                     </a>
+
                 {% endif %}
 
-                <form method="post" action="{% url 'accounts:logout' %}" style="display:inline">
+                <form
+                    method="post"
+                    action="{% url 'accounts:logout' %}"
+                    style="display:inline"
+                >
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-ghost" style="cursor:pointer">
+
+                    <button
+                        type="submit"
+                        class="btn btn-ghost"
+                        style="cursor:pointer"
+                    >
                         Log out
                     </button>
                 </form>
@@ -136,27 +162,45 @@
     </main>
 
     <!-- ===================== FOOTER ===================== -->
- 
-        <footer class="site-footer">
+
+    <footer class="site-footer">
+
         <div class="footer-inner">
 
             <div class="footer-main">
 
                 <div class="footer-contact">
+
                     <div class="contact-item">
-                        <span class="contact-label">Email</span>
-                        <a href="mailto:contacto@studybank.com">contacto@studybank.com</a>
+                        <span class="contact-label">
+                            Email
+                        </span>
+
+                        <a href="mailto:contacto@studybank.com">
+                            contacto@studybank.com
+                        </a>
                     </div>
 
                     <div class="contact-item">
-                        <span class="contact-label">Phone</span>
-                        <a href="tel:+570000000000">+57 000 000 0000</a>
+                        <span class="contact-label">
+                            Phone
+                        </span>
+
+                        <a href="tel:+570000000000">
+                            +57 000 000 0000
+                        </a>
                     </div>
 
                     <div class="contact-item">
-                        <span class="contact-label">Location</span>
-                        <span>Universidad EAFIT · Medellín, Colombia</span>
+                        <span class="contact-label">
+                            Location
+                        </span>
+
+                        <span>
+                            Universidad EAFIT · Medellín, Colombia
+                        </span>
                     </div>
+
                 </div>
 
                 <p class="footer-slogan">
@@ -168,10 +212,13 @@
             </div>
 
             <div class="footer-bottom">
-                <span>© {% now "Y" %} StudyBank. All rights reserved.</span>
+                <span>
+                    © {% now "Y" %} StudyBank. All rights reserved.
+                </span>
             </div>
 
         </div>
+
     </footer>
 
 </body>
