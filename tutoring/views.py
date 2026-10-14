@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models import Avg, Count, F
 from django.shortcuts import (
     get_object_or_404,
     redirect,
@@ -61,13 +62,37 @@ def tutor_search(request):
     )
 
     selected_subject = request.GET.get(
-        "subject"
+        "subject",
+        "",
     )
 
-    tutors = TutorProfile.objects.filter(
-        is_approved=True
-    ).select_related(
-        "user"
+    search_query = request.GET.get(
+        "q",
+        "",
+    ).strip()
+
+    selected_sort = request.GET.get(
+        "sort",
+        "alphabetical",
+    )
+
+    valid_sort_options = {
+        "alphabetical",
+        "rating",
+        "popular",
+    }
+
+    if selected_sort not in valid_sort_options:
+        selected_sort = "alphabetical"
+
+    tutors = (
+        TutorProfile.objects
+        .filter(
+            is_approved=True
+        )
+        .select_related(
+            "user"
+        )
     )
 
     if selected_subject:
@@ -75,9 +100,55 @@ def tutor_search(request):
             subjects__id=selected_subject
         )
 
+    if search_query:
+        tutors = tutors.filter(
+            user__email__icontains=search_query
+        )
+
+    tutors = tutors.annotate(
+        average_rating_value=Avg(
+            "ratings__score"
+        ),
+        rating_count=Count(
+            "ratings",
+            distinct=True,
+        ),
+    )
+
+    if selected_sort == "rating":
+        tutors = tutors.order_by(
+            F(
+                "average_rating_value"
+            ).desc(
+                nulls_last=True
+            ),
+            F(
+                "rating_count"
+            ).desc(),
+            "user__email",
+        )
+
+    elif selected_sort == "popular":
+        tutors = tutors.order_by(
+            F(
+                "rating_count"
+            ).desc(),
+            F(
+                "average_rating_value"
+            ).desc(
+                nulls_last=True
+            ),
+            "user__email",
+        )
+
+    else:
+        tutors = tutors.order_by(
+            "user__email"
+        )
+
     tutors = tutors.prefetch_related(
         "subjects"
-    ).distinct()
+    )
 
     return render(
         request,
@@ -85,6 +156,8 @@ def tutor_search(request):
         {
             "subjects": subjects,
             "selected_subject": selected_subject,
+            "search_query": search_query,
+            "selected_sort": selected_sort,
             "tutors": tutors,
         },
     )
