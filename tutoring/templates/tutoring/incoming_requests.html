@@ -12,16 +12,21 @@
         <h1>Incoming requests</h1>
 
         <p class="form-description">
-            Review and respond to tutoring requests sent to you by students.
+            Review and manage tutoring requests sent to you by students.
         </p>
 
         <div class="tutor-results">
 
             {% for tutoring_request in tutoring_requests %}
 
-                <article class="tutor-card" id="request-{{ tutoring_request.id }}">
+                <article
+                    class="tutor-card"
+                    id="request-{{ tutoring_request.id }}"
+                >
 
-                    <h2>{{ tutoring_request.subject.name }}</h2>
+                    <h2>
+                        {{ tutoring_request.subject.name }}
+                    </h2>
 
                     <p>
                         <strong>Student:</strong>
@@ -44,10 +49,12 @@
                     </p>
 
                     {% if tutoring_request.message %}
+
                         <p>
                             <strong>Message:</strong>
                             {{ tutoring_request.message }}
                         </p>
+
                     {% endif %}
 
                     {% if tutoring_request.status == "pending" %}
@@ -66,6 +73,7 @@
                                 >
                                     Accept
                                 </button>
+
                             </form>
 
                             <form
@@ -80,9 +88,39 @@
                                 >
                                     Reject
                                 </button>
+
                             </form>
 
                         </div>
+
+                    {% elif tutoring_request.status == "accepted" %}
+
+                        <div class="request-actions">
+
+                            <form
+                                method="post"
+                                action="{% url 'tutoring:complete_request' tutoring_request.id %}"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="primary-button"
+                                >
+                                    Mark as completed
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    {% elif tutoring_request.status == "completed" %}
+
+                        <p>
+                            <strong>
+                                This tutoring session has been completed.
+                            </strong>
+                        </p>
 
                     {% else %}
 

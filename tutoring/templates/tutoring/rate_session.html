@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Rate tutoring session | StudyBank{% endblock %}
+
+{% block content %}
+
+<section class="form-section">
+
+    <div class="form-card">
+
+        <p class="eyebrow">
+            TUTORING RATING
+        </p>
+
+        <h1>
+            Rate your session
+        </h1>
+
+        <p class="form-description">
+            Share your experience with
+            <strong>
+                {{ tutoring_request.tutor.user.email }}
+            </strong>
+            for
+            <strong>
+                {{ tutoring_request.subject.name }}
+            </strong>.
+        </p>
+
+        <p>
+            <strong>Date and time:</strong>
+            {{ tutoring_request.scheduled_at }}
+        </p>
+
+        <p>
+            <strong>Mode:</strong>
+            {{ tutoring_request.get_mode_display }}
+        </p>
+
+        {% if existing_rating %}
+
+            <hr
+                style="
+                    margin: 2rem 0;
+                    border-color: var(--line);
+                "
+            >
+
+            <h2>
+                Your rating
+            </h2>
+
+            <p>
+                <strong>Score:</strong>
+                {{ existing_rating.score }} / 5
+            </p>
+
+            <p
+                style="
+                    font-size: 1.5rem;
+                    letter-spacing: .15rem;
+                "
+            >
+                {% if existing_rating.score == 1 %}
+                    ★☆☆☆☆
+                {% elif existing_rating.score == 2 %}
+                    ★★☆☆☆
+                {% elif existing_rating.score == 3 %}
+                    ★★★☆☆
+                {% elif existing_rating.score == 4 %}
+                    ★★★★☆
+                {% elif existing_rating.score == 5 %}
+                    ★★★★★
+                {% endif %}
+            </p>
+
+            {% if existing_rating.feedback %}
+
+                <p>
+                    <strong>Feedback:</strong>
+                    {{ existing_rating.feedback }}
+                </p>
+
+            {% else %}
+
+                <p>
+                    <strong>Feedback:</strong>
+                    No feedback provided.
+                </p>
+
+            {% endif %}
+
+            <p class="form-description">
+                This tutoring session has already been rated.
+            </p>
+
+            <a
+                href="{% url 'tutoring:my_requests' %}"
+                class="primary-button"
+            >
+                Back to my requests
+            </a>
+
+        {% else %}
+
+            <hr
+                style="
+                    margin: 2rem 0;
+                    border-color: var(--line);
+                "
+            >
+
+            <form method="post">
+
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Submit rating
+                </button>
+
+                <a
+                    href="{% url 'tutoring:my_requests' %}"
+                    class="btn btn-ghost"
+                    style="margin-left: .5rem;"
+                >
+                    Cancel
+                </a>
+
+            </form>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}

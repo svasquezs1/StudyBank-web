@@ -5,24 +5,54 @@
 {% block content %}
 
 <section class="form-section">
+
     <div class="form-card">
 
-        <p class="eyebrow">TUTOR SEARCH</p>
-
-        <h1>Find a tutor</h1>
-
-        <p class="form-description">
-            Select a subject to find approved tutors who can help you.
+        <p class="eyebrow">
+            TUTOR SEARCH
         </p>
 
-        <form method="get" class="search-form">
+        <h1>
+            Find a tutor
+        </h1>
 
-            <label for="subject">Subject</label>
+        <p class="form-description">
+            Search approved tutors, filter by subject,
+            and sort them by rating or popularity.
+        </p>
 
-            <select name="subject" id="subject">
-                <option value="">All subjects</option>
+        <form
+            method="get"
+            class="search-form"
+        >
+
+            <label for="q">
+                Search
+            </label>
+
+            <input
+                type="text"
+                name="q"
+                id="q"
+                value="{{ search_query }}"
+                placeholder="Search by tutor email"
+            >
+
+            <label for="subject">
+                Subject
+            </label>
+
+            <select
+                name="subject"
+                id="subject"
+            >
+
+                <option value="">
+                    All subjects
+                </option>
 
                 {% for subject in subjects %}
+
                     <option
                         value="{{ subject.id }}"
                         {% if selected_subject == subject.id|stringformat:"s" %}
@@ -31,11 +61,54 @@
                     >
                         {{ subject.name }}
                     </option>
+
                 {% endfor %}
+
             </select>
 
-            <button type="submit" class="primary-button">
-                Search
+            <label for="sort">
+                Sort by
+            </label>
+
+            <select
+                name="sort"
+                id="sort"
+            >
+
+                <option
+                    value="alphabetical"
+                    {% if selected_sort == "alphabetical" %}
+                        selected
+                    {% endif %}
+                >
+                    Alphabetical
+                </option>
+
+                <option
+                    value="rating"
+                    {% if selected_sort == "rating" %}
+                        selected
+                    {% endif %}
+                >
+                    Highest Rating
+                </option>
+
+                <option
+                    value="popular"
+                    {% if selected_sort == "popular" %}
+                        selected
+                    {% endif %}
+                >
+                    Most Popular
+                </option>
+
+            </select>
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Apply filters
             </button>
 
         </form>
@@ -46,23 +119,78 @@
 
                 <article class="tutor-card">
 
-                    <h2>{{ tutor.user.email }}</h2>
+                    <h2>
+                        {{ tutor.user.email }}
+                    </h2>
 
                     <p>
-                        <strong>Subjects:</strong>
+                        <strong>
+                            Subjects:
+                        </strong>
 
                         {% for subject in tutor.subjects.all %}
-                            {{ subject.name }}{% if not forloop.last %}, {% endif %}
+
+                            {{ subject.name }}
+
+                            {% if not forloop.last %}
+                                ,
+                            {% endif %}
+
+                        {% empty %}
+
+                            No subjects configured.
+
                         {% endfor %}
+
+                    </p>
+
+                    <p>
+                        <strong>
+                            Rating:
+                        </strong>
+
+                        {% if tutor.average_rating_value %}
+
+                            {{ tutor.average_rating_value|floatformat:1 }}
+                            / 5
+
+                            {% if tutor.average_rating_value >= 4.5 %}
+                                ★★★★★
+                            {% elif tutor.average_rating_value >= 3.5 %}
+                                ★★★★☆
+                            {% elif tutor.average_rating_value >= 2.5 %}
+                                ★★★☆☆
+                            {% elif tutor.average_rating_value >= 1.5 %}
+                                ★★☆☆☆
+                            {% else %}
+                                ★☆☆☆☆
+                            {% endif %}
+
+                        {% else %}
+
+                            Not rated yet
+
+                        {% endif %}
+
+                    </p>
+
+                    <p>
+                        <strong>
+                            Reviews:
+                        </strong>
+
+                        {{ tutor.rating_count }}
                     </p>
 
                     {% if tutor.user != user %}
+
                         <a
                             href="{% url 'tutoring:request_tutoring' tutor.id %}"
                             class="primary-button"
                         >
                             Request tutoring
                         </a>
+
                     {% endif %}
 
                 </article>
@@ -70,7 +198,8 @@
             {% empty %}
 
                 <p class="empty-message">
-                    No approved tutors were found for this subject.
+                    No approved tutors were found
+                    with the selected filters.
                 </p>
 
             {% endfor %}
@@ -78,6 +207,7 @@
         </div>
 
     </div>
+
 </section>
 
 {% endblock %}

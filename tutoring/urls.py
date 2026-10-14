@@ -2,7 +2,9 @@ from django.urls import path
 
 from . import views
 
+
 app_name = "tutoring"
+
 
 urlpatterns = [
     path(
@@ -54,5 +56,15 @@ urlpatterns = [
         "requests/<int:request_id>/reject/",
         views.reject_tutoring_request,
         name="reject_request",
+    ),
+    path(
+        "requests/<int:request_id>/complete/",
+        views.complete_tutoring_request,
+        name="complete_request",
+    ),
+    path(
+        "requests/<int:request_id>/rate/",
+        views.rate_tutoring_request,
+        name="rate_request",
     ),
 ]

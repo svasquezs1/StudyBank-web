@@ -4,6 +4,7 @@ from django.utils import timezone
 from .models import (
     Subject,
     TutorAvailability,
+    TutoringRating,
     TutoringRequest,
     TutorProfile,
 )
@@ -110,7 +111,9 @@ class TutoringRequestForm(forms.ModelForm):
             "message": forms.Textarea(
                 attrs={
                     "rows": 4,
-                    "placeholder": "Tell the tutor what you need help with...",
+                    "placeholder": (
+                        "Tell the tutor what you need help with..."
+                    ),
                 }
             ),
         }
@@ -120,22 +123,27 @@ class TutoringRequestForm(forms.ModelForm):
         self.tutor = tutor
 
         if tutor is not None:
-            self.fields["subject"].queryset = tutor.subjects.all().order_by(
-                "name"
+            self.fields["subject"].queryset = (
+                tutor.subjects.all().order_by("name")
             )
         else:
-            self.fields["subject"].queryset = Subject.objects.none()
+            self.fields["subject"].queryset = (
+                Subject.objects.none()
+            )
 
     def clean_scheduled_at(self):
         scheduled_at = self.cleaned_data["scheduled_at"]
 
         if scheduled_at <= timezone.now():
             raise forms.ValidationError(
-                "The tutoring session must be scheduled for a future date and time."
+                "The tutoring session must be scheduled "
+                "for a future date and time."
             )
 
         if self.tutor is not None:
-            local_scheduled_at = timezone.localtime(scheduled_at)
+            local_scheduled_at = timezone.localtime(
+                scheduled_at
+            )
 
             weekday = local_scheduled_at.weekday()
             scheduled_time = local_scheduled_at.time()
@@ -150,8 +158,50 @@ class TutoringRequestForm(forms.ModelForm):
 
             if not available:
                 raise forms.ValidationError(
-                    "The selected date and time is outside the tutor's available schedule."
+                    "The selected date and time is outside "
+                    "the tutor's available schedule."
                 )
 
         return scheduled_at
-    
+
+
+class TutoringRatingForm(forms.ModelForm):
+    class Meta:
+        model = TutoringRating
+        fields = (
+            "score",
+            "feedback",
+        )
+        labels = {
+            "score": "Rating",
+            "feedback": "Feedback (optional)",
+        }
+        widgets = {
+            "score": forms.RadioSelect(
+                choices=[
+                    (1, "★"),
+                    (2, "★★"),
+                    (3, "★★★"),
+                    (4, "★★★★"),
+                    (5, "★★★★★"),
+                ]
+            ),
+            "feedback": forms.Textarea(
+                attrs={
+                    "rows": 4,
+                    "placeholder": (
+                        "Tell us about your tutoring experience..."
+                    ),
+                }
+            ),
+        }
+
+    def clean_score(self):
+        score = self.cleaned_data["score"]
+
+        if score < 1 or score > 5:
+            raise forms.ValidationError(
+                "Rating must be between 1 and 5 stars."
+            )
+
+        return score
