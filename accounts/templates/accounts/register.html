@@ -9,7 +9,7 @@
     <p>Sign up with your institutional email to start sharing materials and booking tutoring sessions.</p>
   </div>
 
-  <section class="panel" style="max-width:480px;margin:0 auto">
+  <section class="panel panel-narrow">
 
     <form method="post" novalidate>
       {% csrf_token %}
@@ -17,7 +17,7 @@
       {% if form.non_field_errors %}
         <div class="form-row">
           {% for error in form.non_field_errors %}
-            <p style="color:var(--danger)">{{ error }}</p>
+            <p class="form-errors">{{ error }}</p>
           {% endfor %}
         </div>
       {% endif %}
@@ -26,7 +26,7 @@
         <label for="{{ form.email.id_for_label }}">Institutional email <span class="req">*</span></label>
         {{ form.email }}
         {% for error in form.email.errors %}
-          <p style="color:var(--danger);font-size:.8rem;margin-top:.3rem">{{ error }}</p>
+          <p class="form-error">{{ error }}</p>
         {% endfor %}
       </div>
 
@@ -45,7 +45,7 @@
         <label for="{{ form.password1.id_for_label }}">Password <span class="req">*</span></label>
         {{ form.password1 }}
         {% for error in form.password1.errors %}
-          <p style="color:var(--danger);font-size:.8rem;margin-top:.3rem">{{ error }}</p>
+          <p class="form-error">{{ error }}</p>
         {% endfor %}
       </div>
 
@@ -53,12 +53,12 @@
         <label for="{{ form.password2.id_for_label }}">Confirm password <span class="req">*</span></label>
         {{ form.password2 }}
         {% for error in form.password2.errors %}
-          <p style="color:var(--danger);font-size:.8rem;margin-top:.3rem">{{ error }}</p>
+          <p class="form-error">{{ error }}</p>
         {% endfor %}
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Sign up</button>
+        <button type="submit" class="btn btn-primary btn-block">Sign up</button>
       </div>
     </form>
 

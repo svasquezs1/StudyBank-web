@@ -39,12 +39,7 @@
 
         {% if existing_rating %}
 
-            <hr
-                style="
-                    margin: 2rem 0;
-                    border-color: var(--line);
-                "
-            >
+            <hr class="section-divider">
 
             <h2>
                 Your rating
@@ -55,12 +50,7 @@
                 {{ existing_rating.score }} / 5
             </p>
 
-            <p
-                style="
-                    font-size: 1.5rem;
-                    letter-spacing: .15rem;
-                "
-            >
+            <p class="stars rating-stars-lg">
                 {% if existing_rating.score == 1 %}
                     ★☆☆☆☆
                 {% elif existing_rating.score == 2 %}
@@ -103,12 +93,7 @@
 
         {% else %}
 
-            <hr
-                style="
-                    margin: 2rem 0;
-                    border-color: var(--line);
-                "
-            >
+            <hr class="section-divider">
 
             <form method="post">
 
@@ -126,7 +111,6 @@
                 <a
                     href="{% url 'tutoring:my_requests' %}"
                     class="btn btn-ghost"
-                    style="margin-left: .5rem;"
                 >
                     Cancel
                 </a>

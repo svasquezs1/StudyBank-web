@@ -6,29 +6,29 @@
 
 {% block content %}
 
-  <div style="margin-bottom:1.5rem">
-    <a href="{% url 'materials:list' %}" style="color:var(--paper-dim);font-size:.9rem;display:inline-flex;align-items:center;gap:.4rem">
+  <div>
+    <a href="{% url 'materials:list' %}" class="back-link">
       &larr; Back to materials
     </a>
   </div>
 
-  <div class="page-head" style="margin-bottom:1.5rem">
-    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
+  <div class="page-head detail-head">
+    <div class="detail-tags">
       <span class="tag {{ material.file_type }}">{{ material.get_file_type_display }}</span>
       {% if material.file_extension %}
-        <span class="tag" style="background:var(--line);color:var(--paper)">{{ material.file_extension }}</span>
+        <span class="tag ext">{{ material.file_extension }}</span>
       {% endif %}
     </div>
     <h1>{{ material.title }}</h1>
   </div>
 
-  <section class="panel" style="max-width:680px;margin:0 auto">
+  <section class="panel panel-wide">
 
     <!-- Mensajes de feedback (descarga fallida, calificación guardada, etc.) -->
     {% if messages %}
-      <div style="margin-bottom:1.5rem">
+      <div class="flash-list">
         {% for message in messages %}
-          <div class="{% if message.tags == 'success' %}flash-success{% else %}flash-error{% endif %}" role="status" style="padding:.8rem 1rem;border-radius:8px;font-size:.9rem;margin-bottom:.5rem">
+          <div class="flash {% if message.tags == 'success' %}flash-success{% else %}flash-error{% endif %}" role="status">
             {{ message }}
           </div>
         {% endfor %}
@@ -36,50 +36,50 @@
     {% endif %}
     
     <!-- Asignatura, Universidad, Subido por y Fecha -->
-    <div class="mat-meta" style="font-size:.9rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem">
+    <div class="detail-meta">
       <div>
-        <span style="color:var(--paper-dim);display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">Subject / Course</span>
-        <strong style="color:var(--paper)">{{ material.course }}</strong>
+        <span class="label">Subject / Course</span>
+        <strong>{{ material.course }}</strong>
       </div>
       <div>
-        <span style="color:var(--paper-dim);display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">University</span>
-        <strong style="color:var(--paper)">{{ material.university }}</strong>
+        <span class="label">University</span>
+        <strong>{{ material.university }}</strong>
       </div>
       <div>
-        <span style="color:var(--paper-dim);display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">Uploaded by</span>
-        <strong style="color:var(--paper)">{{ material.uploaded_by.first_name|default:material.uploaded_by.email }}</strong>
+        <span class="label">Uploaded by</span>
+        <strong>{{ material.uploaded_by.first_name|default:material.uploaded_by.email }}</strong>
       </div>
       <div>
-        <span style="color:var(--paper-dim);display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">Upload Date</span>
-        <strong style="color:var(--paper)">{{ material.uploaded_at|date:"M d, Y" }}</strong>
+        <span class="label">Upload Date</span>
+        <strong>{{ material.uploaded_at|date:"M d, Y" }}</strong>
       </div>
     </div>
 
     <!-- Descripción del material -->
-    <div style="margin-bottom:1.5rem">
-      <h3 style="font-size:1rem;margin-bottom:.5rem;color:var(--amber);font-family:'Fraunces',serif">Description</h3>
-      <div style="color:var(--paper);line-height:1.6;font-size:.95rem;background:var(--ink);padding:1rem;border-radius:6px;border:1px solid var(--line)">
+    <div class="detail-section">
+      <h3>Description</h3>
+      <div class="detail-box">
         {% if material.description %}
           {{ material.description }}
         {% else %}
-          <span style="color:var(--paper-dim);font-style:italic">No description provided for this material.</span>
+          <span class="muted">No description provided for this material.</span>
         {% endif %}
       </div>
     </div>
 
     <!-- Indicador de archivo adjunto y Botones de acción (Ver / Descargar) -->
-    <div style="background:var(--ink);padding:1.25rem;border-radius:8px;border:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
-      <div style="display:flex;align-items:center;gap:.8rem">
-        <div style="background:var(--amber);color:var(--ink);padding:.5rem .8rem;border-radius:6px;font-weight:bold;font-size:.85rem;letter-spacing:.05em">
+    <div class="file-box">
+      <div class="file-info">
+        <div class="file-ext">
           {{ material.file_extension|default:"FILE" }}
         </div>
         <div>
-          <p style="font-weight:600;margin:0;color:var(--paper);font-size:.95rem">{{ material.title }}</p>
-          <span style="font-size:.8rem;color:var(--paper-dim)">Attached File</span>
+          <p class="file-name">{{ material.title }}</p>
+          <span class="file-sub">Attached File</span>
         </div>
       </div>
 
-      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+      <div class="file-actions">
         <a href="{{ material.file.url }}" class="btn btn-ghost" target="_blank" rel="noopener noreferrer">
           View / Open
         </a>
@@ -90,35 +90,6 @@
     </div>
 
     <!-- RF-13: CALIFICACIÓN DEL MATERIAL -->
-    <style>
-      .flash-success{background:rgba(127,168,138,.15);border:1px solid var(--ok);color:var(--ok)}
-      .flash-error{background:rgba(201,107,107,.15);border:1px solid var(--danger);color:var(--danger)}
-
-      .rating-block{margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
-      .rating-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem}
-      .rating-head h3{font-family:'Fraunces',serif;font-size:1rem;color:var(--amber);margin:0}
-      .rating-average{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
-      .rating-average .stars{font-size:1.05rem;letter-spacing:1px}
-      .rating-figures{font-size:.9rem;color:var(--paper)}
-      .rating-figures strong{color:var(--amber)}
-      .rating-count{font-size:.85rem;color:var(--paper-dim)}
-
-      .rating-form{background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:1.1rem 1.25rem;display:flex;flex-direction:column;align-items:flex-start;gap:.9rem}
-      .rating-prompt{font-size:.88rem;color:var(--paper-dim);margin:0}
-
-      .rate-stars{display:flex;gap:.25rem}
-      .rate-star{background:none;border:0;padding:0 .1rem;margin:0;font-size:2.3rem;line-height:1;color:var(--line);cursor:pointer;transition:color .12s,transform .12s}
-      .rate-star.is-on{color:var(--amber)}
-      .rate-star:hover{transform:scale(1.12)}
-      .rate-star:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:4px}
-
-      .star-hint{font-size:.88rem;color:var(--paper)}
-      .rating-submit:disabled{opacity:.45;cursor:not-allowed}
-
-      .rating-locked{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;background:var(--ink);border:1px dashed var(--line);border-radius:8px;padding:.9rem 1rem}
-      .rating-locked .stars{font-size:1.4rem;letter-spacing:1px}
-      .rating-locked p{margin:0;font-size:.88rem;color:var(--paper-dim)}
-    </style>
 
     <div class="rating-block">
       <div class="rating-head">

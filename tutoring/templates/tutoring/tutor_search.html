@@ -21,95 +21,48 @@
             and sort them by rating or popularity.
         </p>
 
-        <form
-            method="get"
-            class="search-form"
-        >
+        <form method="get" class="filter-bar">
 
-            <label for="q">
-                Search
-            </label>
-
-            <input
-                type="text"
-                name="q"
-                id="q"
-                value="{{ search_query }}"
-                placeholder="Search by tutor email"
-            >
-
-            <label for="subject">
-                Subject
-            </label>
-
-            <select
-                name="subject"
-                id="subject"
-            >
-
-                <option value="">
-                    All subjects
-                </option>
-
-                {% for subject in subjects %}
-
-                    <option
-                        value="{{ subject.id }}"
-                        {% if selected_subject == subject.id|stringformat:"s" %}
-                            selected
-                        {% endif %}
-                    >
-                        {{ subject.name }}
-                    </option>
-
-                {% endfor %}
-
-            </select>
-
-            <label for="sort">
-                Sort by
-            </label>
-
-            <select
-                name="sort"
-                id="sort"
-            >
-
-                <option
-                    value="alphabetical"
-                    {% if selected_sort == "alphabetical" %}
-                        selected
-                    {% endif %}
+            <div class="field grow">
+                <label for="q">Search</label>
+                <input
+                    type="search"
+                    name="q"
+                    id="q"
+                    value="{{ search_query }}"
+                    placeholder="Search by tutor email"
                 >
-                    Alphabetical
-                </option>
+            </div>
 
-                <option
-                    value="rating"
-                    {% if selected_sort == "rating" %}
-                        selected
-                    {% endif %}
-                >
-                    Highest Rating
-                </option>
+            <div class="field">
+                <label for="subject">Subject</label>
+                <select name="subject" id="subject">
+                    <option value="">All subjects</option>
+                    {% for subject in subjects %}
+                        <option
+                            value="{{ subject.id }}"
+                            {% if selected_subject == subject.id|stringformat:"s" %}selected{% endif %}
+                        >
+                            {{ subject.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-                <option
-                    value="popular"
-                    {% if selected_sort == "popular" %}
-                        selected
-                    {% endif %}
-                >
-                    Most Popular
-                </option>
+            <div class="field">
+                <label for="sort">Sort by</label>
+                <select name="sort" id="sort">
+                    <option value="alphabetical" {% if selected_sort == "alphabetical" %}selected{% endif %}>Alphabetical</option>
+                    <option value="rating" {% if selected_sort == "rating" %}selected{% endif %}>Highest Rating</option>
+                    <option value="popular" {% if selected_sort == "popular" %}selected{% endif %}>Most Popular</option>
+                </select>
+            </div>
 
-            </select>
-
-            <button
-                type="submit"
-                class="primary-button"
-            >
-                Apply filters
-            </button>
+            <div class="filter-actions">
+                <button type="submit" class="primary-button">
+                    Apply filters
+                </button>
+            </div>
 
         </form>
 

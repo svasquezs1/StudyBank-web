@@ -6,33 +6,32 @@
 
 {% block content %}
 
-  <!-- BARRA SUPERIOR: Título a la izquierda, Buscador/Filtro a la derecha -->
-  <div class="materials-top-bar" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
-    
-    <div class="page-head" style="margin-bottom: 0;">
-      <h1 style="margin-bottom: 0.5rem;">Study material</h1>
-      <p style="margin: 0; opacity: 0.8;">Notes, documents and past exams shared by students.</p>
+  <!-- ENCABEZADO -->
+  <div class="materials-top-bar">
+    <div class="page-head">
+      <h1>Study material</h1>
+      <p>Notes, documents and past exams shared by students.</p>
     </div>
+  </div>
 
-    {% if user.is_authenticated %}
-      <form action="{% url 'materials:search_materials' %}" method="GET" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-        
-        <!-- Buscador -->
-        <input 
-          type="search" 
-          name="q" 
+  <!-- BÚSQUEDA (RF-05), FILTRO POR MATERIA (RF-06) Y ORDEN (RF-14) -->
+  {% if user.is_authenticated %}
+    <form action="{% url 'materials:search_materials' %}" method="GET" class="filter-bar">
+
+      <div class="field grow">
+        <label for="material-q">Search</label>
+        <input
+          type="search"
+          id="material-q"
+          name="q"
           value="{{ query|default:'' }}"
-          placeholder="Search materials..." 
-          class="input-field"
-          style="padding: 0.55rem 0.8rem; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: #fff; outline: none;"
+          placeholder="Search materials..."
         >
+      </div>
 
-        <!-- Desplegable Filtro Materias (RF-06) -->
-        <select 
-          name="course" 
-          onchange="this.form.submit()"
-          style="padding: 0.55rem 0.8rem; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.2); background: #1a1d24; color: #fff; cursor: pointer; outline: none;"
-        >
+      <div class="field">
+        <label for="course-select">Course</label>
+        <select id="course-select" name="course" onchange="this.form.submit()">
           <option value="">All Courses</option>
           {% for course_item in courses_list %}
             <option value="{{ course_item }}" {% if selected_course == course_item %}selected{% endif %}>
@@ -40,51 +39,46 @@
             </option>
           {% endfor %}
         </select>
+      </div>
 
-        <!-- Ordenamiento (RF-14): conserva la búsqueda y el filtro al cambiar -->
-        <label for="sort-select" style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; color: #aaa;">
-          Sort by
-          <select
-            id="sort-select"
-            name="sort"
-            onchange="this.form.submit()"
-            style="padding: 0.55rem 0.8rem; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.2); background: #1a1d24; color: #fff; cursor: pointer; outline: none;"
-          >
-            {% for value, label in sort_options %}
-              <option value="{{ value }}" {% if sort_by == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-        </label>
+      <div class="field">
+        <label for="sort-select">Sort by</label>
+        <select id="sort-select" name="sort" onchange="this.form.submit()">
+          {% for value, label in sort_options %}
+            <option value="{{ value }}" {% if sort_by == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-        <button type="submit" class="btn btn-primary" style="padding: 0.55rem 1rem;">Search</button>
-
+      <div class="filter-actions">
+        <button type="submit" class="btn btn-primary">Search</button>
         {% if selected_course or query %}
-          <a href="{% url 'materials:search_materials' %}{% if sort_by != 'newest' %}?sort={{ sort_by }}{% endif %}" style="color: #aaa; text-decoration: none; font-size: 0.85rem; margin-left: 0.25rem;">
+          <a href="{% url 'materials:search_materials' %}{% if sort_by != 'newest' %}?sort={{ sort_by }}{% endif %}" class="clear-link">
             ✕ Clear
           </a>
         {% endif %}
-      </form>
-    {% endif %}
+      </div>
 
-  </div>
+    </form>
+  {% endif %}
 
   <!-- BOTÓN SUBIR MATERIAL -->
   {% if user.is_authenticated %}
-    <div style="margin-bottom: 1.5rem;">
+    <div class="action-bar">
       <a href="{% url 'materials:upload' %}" class="btn btn-primary">Upload material</a>
     </div>
   {% endif %}
 
   <!-- CONTADOR DE RESULTADOS -->
   {% if is_searched %}
-    <p class="result-count" style="margin-bottom: 1.5rem; opacity: 0.8;">
-      Found <strong style="color: var(--paper, #f0e6d2);">{{ materials|length }}</strong> results 
+    <p class="result-count result-count-spaced">
+      Found <strong>{{ materials|length }}</strong> results 
       {% if selected_course %}for course '<strong>{{ selected_course }}</strong>'{% endif %}
       {% if query %}{% if selected_course %} and{% endif %} search '<strong>{{ query }}</strong>'{% endif %}
     </p>
   {% else %}
-    <p class="result-count" style="margin-bottom: 1.5rem; opacity: 0.8;">
-      Showing <strong style="color: var(--paper, #f0e6d2);">{{ materials|length }}</strong> materials
+    <p class="result-count result-count-spaced">
+      Showing <strong>{{ materials|length }}</strong> materials
     </p>
   {% endif %}
 
@@ -97,7 +91,7 @@
         </div>
         
         <h3>
-          <a href="{% url 'materials:detail' material.pk %}" style="color: inherit; text-decoration: none;">
+          <a href="{% url 'materials:detail' material.pk %}" class="card-title-link">
             {{ material.title }}
           </a>
         </h3>
@@ -110,25 +104,25 @@
 
         <div class="mat-foot">
           <!-- RF-13: calificación promedio del material -->
-          <div class="mat-rating" style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+          <div class="mat-rating">
             {% if material.num_ratings %}
               <span class="stars" aria-hidden="true">{% for i in star_range %}{% if i <= material.avg_rating %}★{% else %}<span class="dim">★</span>{% endif %}{% endfor %}</span>
-              <span class="dl"><strong style="color: var(--paper)">{{ material.avg_rating|floatformat:1 }}</strong></span>
+              <span class="dl"><strong>{{ material.avg_rating|floatformat:1 }}</strong></span>
             {% else %}
               <span class="dl">No ratings yet</span>
             {% endif %}
           </div>
-          <a href="{% url 'materials:detail' material.pk %}" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">View Details</a>
+          <a href="{% url 'materials:detail' material.pk %}" class="btn btn-primary btn-sm">View Details</a>
         </div>
       </article>
     {% empty %}
-      <div style="grid-column: 1 / -1; padding: 2.5rem; border: 1px dashed rgba(255, 255, 255, 0.2); border-radius: 8px; text-align: center;">
+      <div class="empty-search-state">
         {% if selected_course %}
-          <p style="margin-bottom: 0.5rem; font-weight: 600;">No study materials found for course "{{ selected_course }}"</p>
+          <p class="empty-title">No study materials found for course "{{ selected_course }}"</p>
         {% else %}
-          <p style="margin-bottom: 0.5rem; font-weight: 600;">No study materials found for "{{ query }}"</p>
+          <p class="empty-title">No study materials found for "{{ query }}"</p>
         {% endif %}
-        <p style="font-size: 0.85rem; opacity: 0.7;">Try selecting "All Courses" or searching with different keywords.</p>
+        <p class="empty-subtitle">Try selecting "All Courses" or searching with different keywords.</p>
       </div>
     {% endfor %}
   </div>
