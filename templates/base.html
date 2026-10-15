@@ -17,60 +17,88 @@
         rel="stylesheet"
     >
 
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=4">
 </head>
 
 <body>
 
     <!-- ===================== NAVBAR ===================== -->
 
-    <nav class="nav">
+    {% with ns=request.resolver_match.namespace page=request.resolver_match.url_name %}
+
+    <nav class="nav" id="site-nav">
 
         <a href="{% url 'home' %}" class="brand">
-            <img
-                src="{% static 'images/studybank-logo.png' %}"
-                alt=""
-                style="width: 45px !important; height: 45px !important; max-width: 45px !important; max-height: 45px !important; object-fit: contain; display: block;"
-            >
+            <img src="{% static 'images/studybank-logo.png' %}" alt="">
             <span>Study<span class="dot">Bank</span></span>
         </a>
 
-        <div class="nav-links">
+        <button
+            type="button"
+            class="nav-toggle"
+            aria-controls="nav-links"
+            aria-expanded="false"
+            aria-label="Open menu"
+        >
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+            {% if unread_notifications_count %}
+                <span class="nav-toggle-dot" aria-hidden="true"></span>
+            {% endif %}
+        </button>
+
+        <div class="nav-links" id="nav-links">
 
             <a
                 href="{% url 'home' %}"
-                class="{% block nav_home %}{% endblock %}"
+                class="{% if page == 'home' %}active{% endif %} {% block nav_home %}{% endblock %}"
+                {% if page == 'home' %}aria-current="page"{% endif %}
             >
                 Home
             </a>
 
             <a
                 href="{% url 'materials:list' %}"
-                class="{% block nav_materials %}{% endblock %}"
+                class="{% if ns == 'materials' %}active{% endif %} {% block nav_materials %}{% endblock %}"
+                {% if ns == 'materials' %}aria-current="page"{% endif %}
             >
                 Materials
             </a>
 
             <a
                 href="{% url 'tutoring:tutor_search' %}"
-                class="{% block nav_tutors %}{% endblock %}"
+                class="{% if ns == 'tutoring' and page in 'tutor_search tutor_profile request_tutoring' %}active{% endif %} {% block nav_tutors %}{% endblock %}"
+                {% if ns == 'tutoring' and page in 'tutor_search tutor_profile request_tutoring' %}aria-current="page"{% endif %}
             >
                 Find tutors
             </a>
 
             {% if user.is_authenticated %}
 
-                <a href="{% url 'tutoring:my_requests' %}">
+                <a
+                    href="{% url 'tutoring:my_requests' %}"
+                    class="{% if page == 'my_requests' or page == 'rate_request' %}active{% endif %}"
+                    {% if page == 'my_requests' or page == 'rate_request' %}aria-current="page"{% endif %}
+                >
                     My requests
                 </a>
 
                 {% if user.tutor_profile.is_approved %}
 
-                    <a href="{% url 'tutoring:incoming_requests' %}">
+                    <a
+                        href="{% url 'tutoring:incoming_requests' %}"
+                        class="{% if page == 'incoming_requests' %}active{% endif %}"
+                        {% if page == 'incoming_requests' %}aria-current="page"{% endif %}
+                    >
                         Incoming requests
                     </a>
 
-                    <a href="{% url 'tutoring:availability' %}">
+                    <a
+                        href="{% url 'tutoring:availability' %}"
+                        class="{% if page == 'availability' or page == 'edit_availability' %}active{% endif %}"
+                        {% if page == 'availability' or page == 'edit_availability' %}aria-current="page"{% endif %}
+                    >
                         Availability
                     </a>
 
@@ -78,7 +106,11 @@
 
                 {% if not user.tutor_profile %}
 
-                    <a href="{% url 'tutoring:register_tutor' %}">
+                    <a
+                        href="{% url 'tutoring:register_tutor' %}"
+                        class="{% if page == 'register_tutor' %}active{% endif %}"
+                        {% if page == 'register_tutor' %}aria-current="page"{% endif %}
+                    >
                         Register as tutor
                     </a>
 
@@ -86,7 +118,8 @@
 
                 <a
                     href="{% url 'notifications:list' %}"
-                    class="{% block nav_notifications %}{% endblock %}"
+                    class="{% if ns == 'notifications' %}active{% endif %} {% block nav_notifications %}{% endblock %}"
+                    {% if ns == 'notifications' %}aria-current="page"{% endif %}
                 >
                     Notifications
 
@@ -100,34 +133,24 @@
 
                 <a
                     href="{% url 'accounts:edit_profile' %}"
-                    class="hide-sm {% block nav_profile %}{% endblock %}"
+                    class="{% if page == 'edit_profile' %}active{% endif %} {% block nav_profile %}{% endblock %}"
+                    {% if page == 'edit_profile' %}aria-current="page"{% endif %}
                 >
                     Profile
                 </a>
 
                 {% if user.is_staff %}
 
-                    <a
-                        href="/admin/"
-                        class="hide-sm {% block nav_admin %}{% endblock %}"
-                    >
+                    <a href="/admin/" class="{% block nav_admin %}{% endblock %}">
                         Admin
                     </a>
 
                 {% endif %}
 
-                <form
-                    method="post"
-                    action="{% url 'accounts:logout' %}"
-                    style="display:inline"
-                >
+                <form method="post" action="{% url 'accounts:logout' %}" class="nav-logout">
                     {% csrf_token %}
 
-                    <button
-                        type="submit"
-                        class="btn btn-ghost"
-                        style="cursor:pointer"
-                    >
+                    <button type="submit" class="btn btn-ghost">
                         Log out
                     </button>
                 </form>
@@ -153,6 +176,8 @@
         </div>
 
     </nav>
+
+    {% endwith %}
 
     <!-- ===================== CONTENT ===================== -->
 
@@ -220,6 +245,29 @@
         </div>
 
     </footer>
+
+    <script>
+        // Mobile menu (hamburger): opens and closes the navigation links.
+        (function () {
+            var nav = document.getElementById("site-nav");
+            var toggle = nav.querySelector(".nav-toggle");
+
+            toggle.addEventListener("click", function () {
+                var isOpen = nav.classList.toggle("is-open");
+                toggle.setAttribute("aria-expanded", isOpen);
+                toggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+            });
+
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape" && nav.classList.contains("is-open")) {
+                    nav.classList.remove("is-open");
+                    toggle.setAttribute("aria-expanded", "false");
+                    toggle.setAttribute("aria-label", "Open menu");
+                    toggle.focus();
+                }
+            });
+        })();
+    </script>
 
 </body>
 
