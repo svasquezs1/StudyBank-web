@@ -11,20 +11,19 @@
     <p>Update your name, university, program, and profile picture.</p>
   </div>
 
-  <section class="panel" style="max-width:480px;margin:0 auto">
+  <section class="panel panel-narrow">
 
     {% if messages %}
       {% for message in messages %}
         <div class="form-row">
-          <p style="color:var(--amber)">{{ message }}</p>
+          <p class="form-message">{{ message }}</p>
         </div>
       {% endfor %}
     {% endif %}
 
     {% if user.profile_picture %}
-      <div class="form-row" style="text-align:center">
-        <img src="{{ user.profile_picture.url }}" alt="Current profile picture"
-             style="max-width:120px;border-radius:50%;margin-bottom:1rem">
+      <div class="form-row profile-photo">
+        <img src="{{ user.profile_picture.url }}" alt="Current profile picture">
       </div>
     {% endif %}
 
@@ -34,7 +33,7 @@
       {% if form.non_field_errors %}
         <div class="form-row">
           {% for error in form.non_field_errors %}
-            <p style="color:var(--danger)">{{ error }}</p>
+            <p class="form-errors">{{ error }}</p>
           {% endfor %}
         </div>
       {% endif %}
@@ -65,12 +64,12 @@
         <label for="{{ form.profile_picture.id_for_label }}">Profile picture</label>
         {{ form.profile_picture }}
         {% for error in form.profile_picture.errors %}
-          <p style="color:var(--danger);font-size:.8rem;margin-top:.3rem">{{ error }}</p>
+          <p class="form-error">{{ error }}</p>
         {% endfor %}
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Save changes</button>
+        <button type="submit" class="btn btn-primary btn-block">Save changes</button>
       </div>
     </form>
 
