@@ -710,3 +710,22 @@ td .muted{color:var(--paper-dim);font-size:.8rem}
   clip:rect(0 0 0 0);white-space:nowrap;
 }
 
+
+/* ===================== TUTOR PROFILE (RF-16) ===================== */
+.tutor-profile{display:block;max-width:960px;margin:0 auto;padding:1.5rem 0 3rem}
+.tutor-profile .profile-head .eyebrow{margin-bottom:.4rem}
+.tutor-profile .profile-head .edit{align-self:center}
+@media(max-width:600px){.tutor-profile .profile-head .edit{margin-left:0;width:100%;text-align:center}}
+.tutor-profile .secondary-link{display:inline-block;margin-bottom:1rem}
+.tutor-profile .profile-head{flex-wrap:wrap}
+.avatar-img{object-fit:cover}
+.profile-rating{margin-top:.5rem;font-size:.92rem}
+.profile-rating .stars{font-size:1rem;margin-right:.3rem}
+.profile-rating .count{color:var(--paper-dim)}
+.profile-list{list-style:none;padding:0;margin:.4rem 0 1.2rem}
+.profile-list li{padding:.35rem 0;border-bottom:1px solid var(--line)}
+.profile-list li:last-child{border-bottom:none}
+.profile-list .muted{color:var(--paper-dim)}
+.profile-reviews{margin-top:1.6rem}
+.review{margin:.8rem 0 0;padding:.8rem 1rem;border-left:3px solid var(--amber);background:var(--ink)}
+.review footer{color:var(--paper-dim);font-size:.82rem;margin-top:.3rem}

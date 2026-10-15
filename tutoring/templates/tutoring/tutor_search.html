@@ -120,7 +120,9 @@
                 <article class="tutor-card">
 
                     <h2>
-                        {{ tutor.user.email }}
+                        <a href="{% url 'tutoring:tutor_profile' tutor.id %}">
+                            {{ tutor.user.get_full_name|default:tutor.user.email }}
+                        </a>
                     </h2>
 
                     <p>
@@ -181,6 +183,13 @@
 
                         {{ tutor.rating_count }}
                     </p>
+
+                    <a
+                        href="{% url 'tutoring:tutor_profile' tutor.id %}"
+                        class="secondary-link"
+                    >
+                        View profile →
+                    </a>
 
                     {% if tutor.user != user %}
 

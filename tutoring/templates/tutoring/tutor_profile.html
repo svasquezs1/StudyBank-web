@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tutor.user.get_full_name|default:tutor.user.email }} | StudyBank{% endblock %}
+
+{% block nav_tutors %}active{% endblock %}
+
+{% block content %}
+
+<section class="tutor-profile">
+
+    <a href="{% url 'tutoring:tutor_search' %}" class="secondary-link">
+        ← Back to tutors
+    </a>
+
+    <div class="profile-head">
+
+        {% if tutor.user.profile_picture %}
+            <img
+                src="{{ tutor.user.profile_picture.url }}"
+                alt="Profile picture of {{ tutor.user.get_full_name|default:tutor.user.email }}"
+                class="avatar avatar-img"
+            >
+        {% else %}
+            <div class="avatar" aria-hidden="true">
+                {{ tutor.user.first_name|default:tutor.user.email|first|upper }}
+            </div>
+        {% endif %}
+
+        <div>
+            <p class="eyebrow">TUTOR PROFILE</p>
+
+            <h1>{{ tutor.user.get_full_name|default:tutor.user.email }}</h1>
+
+            <p class="sub">
+                {{ tutor.user.university.name|default:"University not specified" }}
+                {% if tutor.user.program %}
+                    · {{ tutor.user.program.name }}
+                {% endif %}
+            </p>
+
+            <p class="profile-rating">
+                {% if ratings_total %}
+                    <span class="stars" aria-hidden="true">{% for _ in filled_stars %}★{% endfor %}<span class="dim">{% for _ in empty_stars %}★{% endfor %}</span></span>
+                    <strong>{{ average_rating|floatformat:1 }} / 5</strong>
+                    <span class="count">
+                        · {{ ratings_total }} rating{{ ratings_total|pluralize }}
+                    </span>
+                {% else %}
+                    <span class="count">No ratings yet</span>
+                {% endif %}
+            </p>
+        </div>
+
+        {% if not is_own_profile %}
+            <a
+                href="{% url 'tutoring:request_tutoring' tutor.id %}"
+                class="btn btn-primary edit"
+            >
+                Request tutoring
+            </a>
+        {% endif %}
+
+    </div>
+
+    <div class="profile-grid">
+
+        <div class="panel">
+            <h2>Subjects</h2>
+
+            <ul class="profile-list">
+                {% for subject in tutor.subjects.all %}
+                    <li>{{ subject.name }}</li>
+                {% empty %}
+                    <li class="muted">No subjects configured.</li>
+                {% endfor %}
+            </ul>
+
+            <h2>Session modes</h2>
+
+            <ul class="profile-list">
+                {% for mode in session_modes %}
+                    <li>{{ mode }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="panel">
+            <h2>Availability</h2>
+
+            <ul class="profile-list">
+                {% for slot in availability_slots %}
+                    <li>
+                        {{ slot.get_day_of_week_display }}
+                        · {{ slot.start_time|time:"H:i" }}–{{ slot.end_time|time:"H:i" }}
+                    </li>
+                {% empty %}
+                    <li class="muted">This tutor has not published availability yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+
+    {% if recent_reviews %}
+        <div class="panel profile-reviews">
+            <h2>Recent reviews</h2>
+
+            {% for review in recent_reviews %}
+                <blockquote class="review">
+                    <p>"{{ review.feedback }}"</p>
+                    <footer>
+                        {{ review.score }}/5 ·
+                        {{ review.student.get_full_name|default:review.student.email }}
+                    </footer>
+                </blockquote>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</section>
+
+{% endblock %}

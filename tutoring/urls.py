@@ -18,6 +18,11 @@ urlpatterns = [
         name="tutor_search",
     ),
     path(
+        "tutors/<int:tutor_id>/",
+        views.tutor_profile,
+        name="tutor_profile",
+    ),
+    path(
         "availability/",
         views.tutor_availability,
         name="availability",

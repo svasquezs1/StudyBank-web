@@ -163,6 +163,58 @@ def tutor_search(request):
 
 
 @login_required
+def tutor_profile(request, tutor_id):
+    """RF-16: public profile of an approved tutor with average rating."""
+    tutor = get_object_or_404(
+        TutorProfile.objects
+        .select_related(
+            "user",
+            "user__university",
+            "user__program",
+        )
+        .prefetch_related(
+            "subjects",
+        ),
+        id=tutor_id,
+        is_approved=True,
+    )
+
+    rating_summary = tutor.ratings.aggregate(
+        average=Avg("score"),
+        total=Count("id"),
+    )
+
+    average = rating_summary["average"]
+    filled_stars = round(average) if average is not None else 0
+
+    availability_slots = tutor.availability_slots.filter(
+        is_active=True,
+    )
+
+    recent_reviews = (
+        tutor.ratings
+        .exclude(feedback="")
+        .select_related("student")[:5]
+    )
+
+    return render(
+        request,
+        "tutoring/tutor_profile.html",
+        {
+            "tutor": tutor,
+            "average_rating": average,
+            "ratings_total": rating_summary["total"],
+            "filled_stars": range(filled_stars),
+            "empty_stars": range(5 - filled_stars),
+            "availability_slots": availability_slots,
+            "session_modes": TutoringRequest.Mode.labels,
+            "recent_reviews": recent_reviews,
+            "is_own_profile": tutor.user_id == request.user.id,
+        },
+    )
+
+
+@login_required
 def tutor_availability(request):
     tutor = get_object_or_404(
         TutorProfile,
