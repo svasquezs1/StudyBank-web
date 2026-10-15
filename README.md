@@ -34,19 +34,17 @@ The current MVP includes the following functionality:
 - Tutor search by subject.
 - Tutoring session requests, specifying subject, date, time, and mode (in person or virtual).
 - Acceptance or rejection of tutoring requests by tutors.
-- Shared and responsive visual interface.
+- Material ratings (1 to 5 stars, after downloading) and catalog sorting by rating or downloads.
+- Tutor availability (recurring weekly time slots).
+- Tutor public profile with average rating.
+- Completion and rating of tutoring sessions, and tutor sorting by rating.
+- In-app notifications when a tutoring request is created, accepted or rejected.
+- Shared and responsive visual interface, with a mobile menu.
+
 ### Planned functionality
- 
-Additional functionality is being developed and prioritised through the project backlog and requirements specification.
- 
-This includes features related to:
- 
-- Material ratings and ranking by rating.
-- Tutor availability.
-- Tutor profile with average rating.
-- Tutoring session ratings and tutor ranking by rating.
-- Notifications for tutoring requests and their responses.
-- Additional tutoring and material management capabilities defined in the backlog.
+
+Additional functionality (Could have requirements such as password recovery, editing or deleting uploaded materials, and cancelling tutoring sessions) is prioritised in the project backlog.
+
 The complete list of functional requirements, their priorities, and their current status is documented in the project Wiki.
  
 See:
@@ -166,8 +164,9 @@ See:
 StudyBank-web/
 ├── config/          # Django project configuration
 ├── accounts/        # Users, authentication, universities and programs
-├── materials/       # Study materials module
-├── tutoring/        # Tutors, subjects, tutor search and tutoring requests
+├── materials/       # Study materials, downloads and material ratings
+├── tutoring/        # Tutors, subjects, availability, tutoring requests and ratings
+├── notifications/   # In-app notifications for tutoring requests
 ├── templates/       # Shared HTML templates
 ├── static/          # CSS, JavaScript and images
 ├── manage.py
