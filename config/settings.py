@@ -31,6 +31,16 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 
+# Origins allowed to submit forms (needed when the site is served through a
+# domain or HTTPS). Example: http://54.12.34.56,https://studybank.example.com
+CSRF_TRUSTED_ORIGINS = [
+    origin for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if origin
+]
+
+# Serve uploaded files (profile pictures, materials) from Django when DEBUG is
+# False and no external storage (R2) is configured, e.g. on a single EC2 instance.
+SERVE_MEDIA = os.environ.get('SERVE_MEDIA', 'False') == 'True'
+
 
 # Application definition
 
@@ -114,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
