@@ -1,0 +1,15 @@
+# Unifies the Git identities used by each team member, so that
+# `git shortlog -sne` and `git log --use-mailmap` show one name per person.
+# Format: Canonical Name <canonical@email> [Commit Name] <commit@email>
+#
+# Samuel's first commits (4eae099, 904219b, 4bc7f24) were recorded as
+# "Juan Serna <juanserna@MacBook-Air-Serna.local>" before his Git
+# configuration was corrected. See the Wiki home page.
+
+Sebastián Vásquez Saldarriaga <svasquezs1@eafit.edu.co>
+Sebastián Vásquez Saldarriaga <svasquezs1@eafit.edu.co> <104176586+svasquezs1@users.noreply.github.com>
+
+Gisel Lorena Jaramillo Carmona <gljaramilc@eafit.edu.co>
+
+Samuel Serna Patiño <sserna@eafit.edu.co>
+Samuel Serna Patiño <sserna@eafit.edu.co> <juanserna@MacBook-Air-Serna.local>

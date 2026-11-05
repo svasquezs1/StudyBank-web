@@ -40,11 +40,10 @@ The current MVP includes the following functionality:
 - Completion and rating of tutoring sessions, and tutor sorting by rating.
 - In-app notifications when a tutoring request is created, accepted or rejected.
 - Shared and responsive visual interface, with a mobile menu.
-
 ### Planned functionality
-
-Additional functionality (Could have requirements such as password recovery, editing or deleting uploaded materials, and cancelling tutoring sessions) is prioritised in the project backlog.
-
+ 
+Sprint 4 (in progress) adds the public user profile (RF-23), editing and deleting uploaded materials (RF-24, RF-25), filtering materials by university (RF-26), cancelling tutoring sessions (RF-28), tutor activity statistics (RF-30) and the production deployment on AWS EC2. Password recovery (RF-22) remains in the backlog.
+ 
 The complete list of functional requirements, their priorities, and their current status is documented in the project Wiki.
  
 See:
@@ -57,11 +56,11 @@ See:
  
 | Layer | Technology |
 |-------|------------|
-| Backend | Python + Django (MVT) |
-| Database | SQLite |
-| Production file storage | Cloudflare R2 (S3-compatible) — planned/configurable |
+| Backend | Python 3.12 + Django 6.0.7 (MVT) |
+| Database | SQLite 3 |
+| Production server | AWS EC2 — Amazon Linux 2023 |
 | Static files | WhiteNoise |
-| Production deployment | PythonAnywhere — planned |
+| Uploaded files | Server disk (`media/`); Cloudflare R2 (S3-compatible) optional |
 | Version control | Git + GitHub |
 | Project management | GitHub Projects |
 | Documentation | GitHub Wiki |
@@ -156,6 +155,11 @@ See:
  
    `http://127.0.0.1:8000`
  
+8. **Run the automated tests**
+```bash
+   python manage.py test
+```
+ 
 ---
  
 ## 📁 Project Structure
@@ -178,13 +182,12 @@ StudyBank-web/
  
 ## 🌐 Deployment
  
-The application is currently under development.
+The production environment is an **AWS EC2** instance running **Amazon Linux 2023** with Python 3.12.
  
-The planned production environment uses **PythonAnywhere** for deployment and **Cloudflare R2** for user-uploaded file storage.
- 
-These services should not be interpreted as the current production state until the final deployment has been completed and validated.
- 
-A live application link will be added once deployment is available.
+- The project settings for EC2 (`CSRF_TRUSTED_ORIGINS`, `SERVE_MEDIA`) were prepared in pull request #74.
+- **SQLite** stores the data and uploaded files are kept in `media/` on the instance. Cloudflare R2 can be enabled through the `R2_*` environment variables.
+- The step-by-step deployment guide is added in Sprint 4 together with the deployment issue.
+**Live application:** http://&lt;EC2_PUBLIC_IP&gt; — the final address will be published here once the Sprint 4 deployment is validated.
  
 ---
  
