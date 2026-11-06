@@ -80,6 +80,13 @@
       </div>
 
       <div class="file-actions">
+        
+              <div class="file-actions">
+        {% if request.user == material.uploaded_by %}
+          <a href="{% url 'materials:edit' material.pk %}" class="btn btn-ghost" id="edit-link">
+            ✎ Edit
+          </a>
+        {% endif %}
         <a href="{{ material.file.url }}" class="btn btn-ghost" target="_blank" rel="noopener noreferrer">
           View / Open
         </a>

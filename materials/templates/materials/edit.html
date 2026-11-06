@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit material — StudyBank{% endblock %}
+
+{% block nav_materials %}active{% endblock %}
+
+{% block content %}
+
+  <div>
+    <a href="{% url 'materials:detail' material.pk %}" class="back-link">
+      &larr; Back to material
+    </a>
+  </div>
+
+  <div class="page-head">
+    <h1>Edit material</h1>
+    <p>Update the information of your material without deleting and re-uploading it. Accepted formats: PDF, DOCX, PNG, JPG (max 20 MB).</p>
+  </div>
+
+  <section class="panel panel-medium">
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="form-row">
+          {% for error in form.non_field_errors %}
+            <p class="form-errors">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="form-row">
+        <label for="{{ form.title.id_for_label }}">Title <span class="req">*</span></label>
+        {{ form.title }}
+        {% for error in form.title.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.description.id_for_label }}">Description <span class="optional">(optional)</span></label>
+        {{ form.description }}
+        {% for error in form.description.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+      </div>
+
+      <div class="form-row two">
+        <div>
+          <label for="{{ form.course.id_for_label }}">Course <span class="req">*</span></label>
+          {{ form.course }}
+          {% for error in form.course.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+        </div>
+        <div>
+          <label for="{{ form.university.id_for_label }}">University <span class="req">*</span></label>
+          {{ form.university }}
+          {% for error in form.university.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.file_type.id_for_label }}">File type <span class="req">*</span></label>
+        {{ form.file_type }}
+        {% for error in form.file_type.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+      </div>
+
+      <div class="form-row">
+        <label for="{{ form.file.id_for_label }}">Replace file <span class="optional">(optional)</span></label>
+        <p class="muted">Current file: {{ material.file_extension|default:"FILE" }} — leave empty to keep it.</p>
+        {{ form.file }}
+        {% for error in form.file.errors %}<p class="form-error">{{ error }}</p>{% endfor %}
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-block">Save changes</button>
+      </div>
+    </form>
+
+  </section>
+
+{% endblock %}
