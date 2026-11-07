@@ -5,10 +5,11 @@ from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Avg, Count, F, OuterRef, Q, Subquery, Sum
 from django.db.models.functions import Coalesce
-from .forms import MaterialForm
+from .forms import  MaterialEditForm, MaterialForm
 from .models import Material, Course, MaterialDownload, MaterialRating
 from django.views.decorators.http import require_POST
 from django.views.decorators.cache import never_cache
+from django.core.exceptions import PermissionDenied
 
 # RF-14: opciones de ordenamiento del catálogo (valor del parámetro ?sort=, etiqueta visible)
 SORT_OPTIONS = [
@@ -37,6 +38,31 @@ def upload(request):
         form = MaterialForm()
 
     return render(request, 'materials/upload.html', {'form': form})
+
+@login_required
+def material_edit(request, pk):
+    """RF-24: solo el uploader original puede editar; los demás reciben 403."""
+    material = get_object_or_404(Material, pk=pk)
+
+    if material.uploaded_by_id != request.user.id:
+        raise PermissionDenied
+
+    # ModelForm modifica la instancia durante is_valid(), por eso se guarda el nombre antes.
+    old_file_name = material.file.name
+
+    if request.method == 'POST':
+        form = MaterialEditForm(request.POST, request.FILES, instance=material)
+        if form.is_valid():
+            updated = form.save()
+            # Si se reemplazó el archivo, se borra el anterior del storage.
+            if old_file_name and updated.file.name != old_file_name:
+                updated.file.storage.delete(old_file_name)
+            messages.success(request, 'Material updated successfully.')
+            return redirect('materials:detail', pk=updated.pk)
+    else:
+        form = MaterialEditForm(instance=material)
+
+    return render(request, 'materials/edit.html', {'form': form, 'material': material})
 
 @login_required
 def material_list(request):

@@ -18,6 +18,20 @@ class MaterialForm(forms.ModelForm):
             'file_type': forms.Select(),
         }
 
+class MaterialEditForm(MaterialForm):
+    """RF-24: el archivo es opcional; si no se envía uno nuevo, se conserva el actual."""
+
+    class Meta(MaterialForm.Meta):
+        widgets = {
+            **MaterialForm.Meta.widgets,
+            'file': forms.FileInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['file'].required = False
+
+   
 class MaterialSearchForm(forms.Form):
     q = forms.CharField(
         required=False,
