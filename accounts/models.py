@@ -70,3 +70,13 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+    @property
+    def display_name(self):
+        """
+        RF-23: name shown on public pages. Uses the full name when the user
+        filled it in; otherwise the part of the email before "@", so the
+        complete institutional email is not exposed on the public profile.
+        """
+        return self.get_full_name() or self.email.split('@')[0]
+    

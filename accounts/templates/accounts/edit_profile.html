@@ -9,6 +9,11 @@
   <div class="page-head">
     <h1>Edit profile</h1>
     <p>Update your name, university, program, and profile picture.</p>
+    <p>
+      <a href="{% url 'accounts:public_profile' user.pk %}" class="secondary-link">
+        View my public profile →
+      </a>
+    </p>
   </div>
 
   <section class="panel panel-narrow">
