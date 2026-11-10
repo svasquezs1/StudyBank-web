@@ -137,7 +137,11 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Django 6 only reads the STORAGES setting (STATICFILES_STORAGE was removed).
+# WhiteNoise serves the collected static files compressed; the files keep their
+# names, so pages keep working even if collectstatic was not run after a change.
+STATICFILES_BACKEND = {'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage'}
 
 R2_ACCESS_KEY_ID = os.environ.get('R2_ACCESS_KEY_ID')
 R2_SECRET_ACCESS_KEY = os.environ.get('R2_SECRET_ACCESS_KEY')
@@ -155,11 +159,14 @@ if R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY:
                 'endpoint_url': R2_ENDPOINT_URL,
             },
         },
-        'staticfiles': {
-            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
-        },
+        'staticfiles': STATICFILES_BACKEND,
     }
 else:
+    # Uploaded files (materials, profile pictures) are stored on the server disk.
+    STORAGES = {
+        'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+        'staticfiles': STATICFILES_BACKEND,
+    }
     MEDIA_URL = 'media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 

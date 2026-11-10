@@ -182,12 +182,14 @@ StudyBank-web/
  
 ## 🌐 Deployment
  
-The production environment is an **AWS EC2** instance running **Amazon Linux 2023** with Python 3.12.
+StudyBank is deployed on an **AWS EC2** instance (`t3.micro`, **Amazon Linux 2023**) of the **AWS Academy Learner Lab**, following the course tutorial *Taller 4 — Despliegue: AWS + Django*:
  
-- The project settings for EC2 (`CSRF_TRUSTED_ORIGINS`, `SERVE_MEDIA`) were prepared in pull request #74.
-- **SQLite** stores the data and uploaded files are kept in `media/` on the instance. Cloudflare R2 can be enabled through the `R2_*` environment variables.
-- The step-by-step deployment guide is added in Sprint 4 together with the deployment issue.
-**Live application:** http://&lt;EC2_PUBLIC_IP&gt; — the final address will be published here once the Sprint 4 deployment is validated.
+- The Django server runs on port 80 inside a **Python 3.12** virtual environment, with `DEBUG=False`.
+- **WhiteNoise** serves the static files, **SQLite** stores the data and uploaded files are kept in `media/` on the instance.
+- The public IP changes every time the Learner Lab starts, so [`deploy/start_studybank.sh`](deploy/start_studybank.sh) writes the current IP into `.env` and starts the server.
+The step-by-step guide (Learner Lab, instance, production `.env`, start, update and troubleshooting) is in [`deploy/README.md`](deploy/README.md).
+ 
+**Live application:** the address is printed by `deploy/start_studybank.sh` each time the lab starts (for example `http://3.94.193.168`).
  
 ---
  
