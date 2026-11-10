@@ -112,6 +112,9 @@
               <span class="dl">No ratings yet</span>
             {% endif %}
           </div>
+                    {% if material.uploaded_by_id == user.id %}
+            <a href="{% url 'materials:edit' material.pk %}" class="btn btn-ghost btn-sm">Edit</a>
+          {% endif %}
           <a href="{% url 'materials:detail' material.pk %}" class="btn btn-primary btn-sm">View Details</a>
         </div>
       </article>
