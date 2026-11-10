@@ -114,6 +114,7 @@ class TutoringRequest(models.Model):
         ACCEPTED = "accepted", "Accepted"
         REJECTED = "rejected", "Rejected"
         COMPLETED = "completed", "Completed"
+        CANCELED = "canceled", "Canceled"
 
     student = models.ForeignKey(
         settings.AUTH_USER_MODEL,

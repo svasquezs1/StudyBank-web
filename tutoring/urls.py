@@ -63,6 +63,11 @@ urlpatterns = [
         name="reject_request",
     ),
     path(
+        "requests/<int:request_id>/cancel/",
+        views.cancel_tutoring_request,
+        name="cancel_request",
+    ),
+    path(
         "requests/<int:request_id>/complete/",
         views.complete_tutoring_request,
         name="complete_request",
