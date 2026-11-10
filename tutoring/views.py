@@ -410,6 +410,10 @@ def my_tutoring_requests(request):
         request.GET.get("rated") == "1"
     )
 
+    cancellation_saved = (
+        request.GET.get("canceled") == "1"
+    )
+
     return render(
         request,
         "tutoring/my_requests.html",
@@ -417,6 +421,7 @@ def my_tutoring_requests(request):
             "tutoring_requests": tutoring_requests,
             "request_sent": request_sent,
             "rating_saved": rating_saved,
+            "cancellation_saved": cancellation_saved,
         },
     )
 
@@ -522,6 +527,39 @@ def reject_tutoring_request(
 
     return redirect(
         "tutoring:incoming_requests"
+    )
+
+
+@login_required
+@require_POST
+def cancel_tutoring_request(
+    request,
+    request_id,
+):
+    tutoring_request = get_object_or_404(
+        TutoringRequest,
+        id=request_id,
+        student=request.user,
+    )
+
+    if tutoring_request.status in (
+        TutoringRequest.Status.PENDING,
+        TutoringRequest.Status.ACCEPTED,
+    ):
+        tutoring_request.status = (
+            TutoringRequest.Status.CANCELED
+        )
+
+        tutoring_request.save(
+            update_fields=[
+                "status",
+                "updated_at",
+            ]
+        )
+
+    return redirect(
+        f"{reverse('tutoring:my_requests')}"
+        "?canceled=1"
     )
 
 

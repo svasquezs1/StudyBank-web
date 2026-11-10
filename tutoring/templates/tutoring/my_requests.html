@@ -29,6 +29,15 @@
                 Your rating has been saved successfully.
             </p>
 
+        {% elif cancellation_saved %}
+
+            <p class="form-description">
+                <strong>
+                    Tutoring request canceled successfully.
+                </strong>
+                The tutor's time is now available again.
+            </p>
+
         {% else %}
 
             <p class="form-description">
@@ -76,6 +85,44 @@
                             <strong>Message:</strong>
                             {{ tutoring_request.message }}
                         </p>
+
+                    {% endif %}
+
+                    {% if tutoring_request.status == "pending" or tutoring_request.status == "accepted" %}
+
+                        <div class="request-actions">
+
+                            <form
+                                method="post"
+                                action="{% url 'tutoring:cancel_request' tutoring_request.id %}"
+                                onsubmit="return confirm('Are you sure you want to cancel this tutoring request?');"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-ghost"
+                                >
+                                    Cancel Request
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    {% elif tutoring_request.status == "canceled" %}
+
+                        <div class="request-actions">
+
+                            <button
+                                type="button"
+                                class="btn btn-ghost"
+                                disabled
+                            >
+                                Cancel Request
+                            </button>
+
+                        </div>
 
                     {% endif %}
 
