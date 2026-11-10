@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Avg, Count, F
+from django.db.models import Avg, Count, F, Q
 from django.shortcuts import (
     get_object_or_404,
     redirect,
@@ -422,6 +422,48 @@ def my_tutoring_requests(request):
             "request_sent": request_sent,
             "rating_saved": rating_saved,
             "cancellation_saved": cancellation_saved,
+        },
+    )
+
+
+@login_required
+def tutor_statistics(request):
+    tutor = get_object_or_404(
+        TutorProfile,
+        user=request.user,
+    )
+
+    statistics = (
+        TutoringRequest.objects
+        .filter(tutor=tutor)
+        .aggregate(
+            total_requests=Count("id"),
+            accepted_sessions=Count(
+                "id",
+                filter=Q(
+                    status=TutoringRequest.Status.ACCEPTED
+                ),
+            ),
+            rejected_sessions=Count(
+                "id",
+                filter=Q(
+                    status=TutoringRequest.Status.REJECTED
+                ),
+            ),
+            canceled_sessions=Count(
+                "id",
+                filter=Q(
+                    status=TutoringRequest.Status.CANCELED
+                ),
+            ),
+        )
+    )
+
+    return render(
+        request,
+        "tutoring/statistics.html",
+        {
+            "statistics": statistics,
         },
     )
 

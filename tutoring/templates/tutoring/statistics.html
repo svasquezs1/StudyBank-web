@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Tutor statistics | StudyBank{% endblock %}
+
+{% block content %}
+
+<section class="form-section">
+    <div class="form-card">
+
+        <p class="eyebrow">TUTOR ACTIVITY</p>
+
+        <h1>Your tutoring statistics</h1>
+
+        <p class="form-description">
+            Track your tutoring activity based on your current requests
+            and sessions in StudyBank.
+        </p>
+
+        <div class="tutor-results">
+
+            <article class="tutor-card">
+                <p class="eyebrow">
+                    TOTAL REQUESTS RECEIVED
+                </p>
+
+                <h2>
+                    {{ statistics.total_requests }}
+                </h2>
+
+                <p>
+                    Tutoring requests received from students.
+                </p>
+            </article>
+
+            <article class="tutor-card">
+                <p class="eyebrow">
+                    TOTAL ACCEPTED SESSIONS
+                </p>
+
+                <h2>
+                    {{ statistics.accepted_sessions }}
+                </h2>
+
+                <p>
+                    Requests currently accepted for tutoring.
+                </p>
+            </article>
+
+            <article class="tutor-card">
+                <p class="eyebrow">
+                    TOTAL REJECTED SESSIONS
+                </p>
+
+                <h2>
+                    {{ statistics.rejected_sessions }}
+                </h2>
+
+                <p>
+                    Tutoring requests that were rejected.
+                </p>
+            </article>
+
+            <article class="tutor-card">
+                <p class="eyebrow">
+                    TOTAL CANCELED SESSIONS
+                </p>
+
+                <h2>
+                    {{ statistics.canceled_sessions }}
+                </h2>
+
+                <p>
+                    Tutoring requests canceled by students.
+                </p>
+            </article>
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
