@@ -48,6 +48,11 @@ urlpatterns = [
         name="my_requests",
     ),
     path(
+        "statistics/",
+        views.tutor_statistics,
+        name="statistics",
+    ),
+    path(
         "requests/incoming/",
         views.incoming_tutoring_requests,
         name="incoming_requests",

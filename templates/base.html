@@ -84,6 +84,18 @@
                     My requests
                 </a>
 
+                {% if user.tutor_profile %}
+
+                    <a
+                        href="{% url 'tutoring:statistics' %}"
+                        class="{% if page == 'statistics' %}active{% endif %}"
+                        {% if page == 'statistics' %}aria-current="page"{% endif %}
+                    >
+                        Statistics
+                    </a>
+
+                {% endif %}
+
                 {% if user.tutor_profile.is_approved %}
 
                     <a
