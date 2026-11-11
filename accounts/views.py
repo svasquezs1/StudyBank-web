@@ -1,9 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ProfileEditForm, RegisterForm
+from .models import User
+
+# RF-23: number of shared materials listed on the public profile.
+PUBLIC_PROFILE_MATERIALS_LIMIT = 6
 
 
 def register(request):
@@ -35,3 +39,31 @@ def edit_profile(request):
 
     return render(request, 'accounts/edit_profile.html', {'form': form})
 
+
+@login_required
+def public_profile(request, user_id):
+    """
+    RF-23: public profile of a registered user.
+
+    Only the fields defined as public are sent to the template: display name,
+    profile picture, university, program, member-since date, approved tutor
+    status and the materials the user shared. The email, login data and
+    permissions are never shown. Inactive accounts return 404.
+    """
+    profile_user = get_object_or_404(
+        User.objects.select_related('university', 'program'),
+        pk=user_id,
+        is_active=True,
+    )
+
+    shared_materials = profile_user.materials.select_related('course')
+    tutor_profile = getattr(profile_user, 'tutor_profile', None)
+
+    context = {
+        'profile_user': profile_user,
+        'shared_materials': shared_materials[:PUBLIC_PROFILE_MATERIALS_LIMIT],
+        'shared_materials_total': shared_materials.count(),
+        'approved_tutor': tutor_profile if tutor_profile and tutor_profile.is_approved else None,
+        'is_own_profile': profile_user.pk == request.user.pk,
+    }
+    return render(request, 'accounts/public_profile.html', context)
