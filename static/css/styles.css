@@ -950,3 +950,12 @@ main input[type="checkbox"],main input[type="radio"]{accent-color:var(--amber);w
 .profile-photo{text-align:center}
 .profile-photo img{max-width:120px;border-radius:50%;margin-bottom:1rem}
 .rating-stars-lg{font-size:1.5rem;letter-spacing:.15rem}
+
+
+
+/* --- Login and registration feedback --- */
+.form-hint-title{font-size:.85rem;font-weight:600;color:var(--paper);margin-bottom:.35rem}
+.form-hints{margin:0;padding-left:1.1rem;color:var(--paper-dim);font-size:.82rem;line-height:1.6}
+.auth-switch{margin-top:1.25rem;text-align:center;color:var(--paper-dim);font-size:.9rem}
+/* Keep the dark text of the "Sign up" button in the navbar (.nav-links a overrides it) */
+.nav-links a.btn-primary{color:var(--ink)}

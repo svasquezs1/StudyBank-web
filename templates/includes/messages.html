@@ -1,0 +1,16 @@
+{% comment %}
+  Feedback messages (django.contrib.messages) shown at the top of a page:
+  successful registration, login and logout, and generic authentication errors.
+{% endcomment %}
+{% if messages %}
+  <div class="flash-list">
+    {% for message in messages %}
+      <div
+        class="flash {% if message.tags == 'success' %}flash-success{% else %}flash-error{% endif %}"
+        role="{% if message.tags == 'success' %}status{% else %}alert{% endif %}"
+      >
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
