@@ -11,16 +11,12 @@
 
   <section class="panel panel-narrow">
 
+    {# Success and generic error messages. Field errors are not shown on purpose: #}
+    {# the page must not reveal whether the email or the password was wrong.   #}
+    {% include 'includes/messages.html' %}
+
     <form method="post" novalidate>
       {% csrf_token %}
-
-      {% if form.non_field_errors %}
-        <div class="form-row">
-          {% for error in form.non_field_errors %}
-            <p class="form-errors">{{ error }}</p>
-          {% endfor %}
-        </div>
-      {% endif %}
 
       <div class="form-row">
         <label for="{{ form.username.id_for_label }}">Institutional email <span class="req">*</span></label>
@@ -36,6 +32,10 @@
         <button type="submit" class="btn btn-primary btn-block">Log in</button>
       </div>
     </form>
+
+    <p class="auth-switch">
+      Don't have an account? <a href="{% url 'accounts:register' %}" class="secondary-link">Sign up</a>
+    </p>
 
   </section>
 

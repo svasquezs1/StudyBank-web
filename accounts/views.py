@@ -6,6 +6,13 @@ from django.shortcuts import redirect, render
 from .forms import ProfileEditForm, RegisterForm
 
 
+REGISTER_SUCCESS_MESSAGE = 'Your account was created successfully. Welcome to StudyBank!'
+REGISTER_ERROR_MESSAGE = (
+    "We couldn't create your account with the information provided. "
+    'Check the requirements below and try again.'
+)
+
+
 def register(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -15,7 +22,12 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+            messages.success(request, REGISTER_SUCCESS_MESSAGE)
             return redirect('home')
+        # Same message for every error (email already registered, invalid
+        # email, weak or mismatched passwords, missing fields), so the page
+        # never reveals which value failed or whether an email has an account.
+        messages.error(request, REGISTER_ERROR_MESSAGE)
     else:
         form = RegisterForm()
 
@@ -34,4 +46,3 @@ def edit_profile(request):
         form = ProfileEditForm(instance=request.user)
 
     return render(request, 'accounts/edit_profile.html', {'form': form})
-
