@@ -151,5 +151,3 @@ class Command(BaseCommand):
 
     def report(self, label, new, total):
         self.stdout.write(f'  {label}: {new} new, {total - new} already existed')
-
-        

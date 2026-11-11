@@ -117,5 +117,3 @@ class SeedCommandTests(TestCase):
             run_seed("12345")
 
         self.assertFalse(User.objects.exists())
-
-        
