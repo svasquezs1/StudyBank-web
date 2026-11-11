@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile_user.display_name }} | StudyBank{% endblock %}
+
+{% block content %}
+
+{# RF-23: public profile. Only public fields are rendered; the email is never shown. #}
+
+<section class="tutor-profile">
+
+    <div class="profile-head">
+
+        {% if profile_user.profile_picture %}
+            <img
+                src="{{ profile_user.profile_picture.url }}"
+                alt="Profile picture of {{ profile_user.display_name }}"
+                class="avatar avatar-img"
+            >
+        {% else %}
+            <div class="avatar" aria-hidden="true">
+                {{ profile_user.display_name|first|upper }}
+            </div>
+        {% endif %}
+
+        <div>
+            <p class="eyebrow">USER PROFILE</p>
+
+            <h1>{{ profile_user.display_name }}</h1>
+
+            <p class="sub">
+                {{ profile_user.university.name|default:"University not specified" }}
+                {% if profile_user.program %}
+                    · {{ profile_user.program.name }}
+                {% endif %}
+            </p>
+
+            <p class="profile-rating">
+                <span class="count">Member since {{ profile_user.date_joined|date:"F Y" }}</span>
+            </p>
+        </div>
+
+        {% if is_own_profile %}
+            <a href="{% url 'accounts:edit_profile' %}" class="btn btn-ghost edit">
+                Edit profile
+            </a>
+        {% elif approved_tutor %}
+            <a href="{% url 'tutoring:tutor_profile' approved_tutor.id %}" class="btn btn-primary edit">
+                View tutor profile
+            </a>
+        {% endif %}
+
+    </div>
+
+    <div class="profile-grid">
+
+        <div class="panel">
+            <h2>Shared materials</h2>
+
+            <ul class="profile-list">
+                {% for material in shared_materials %}
+                    <li>
+                        <a href="{% url 'materials:detail' material.pk %}" class="secondary-link">
+                            {{ material.title }}
+                        </a>
+                        <span class="muted">
+                            · {{ material.course.name }} · {{ material.get_file_type_display }}
+                        </span>
+                    </li>
+                {% empty %}
+                    <li class="muted">This user has not shared any materials yet.</li>
+                {% endfor %}
+            </ul>
+
+            {% if shared_materials_total > shared_materials|length %}
+                <p class="muted">
+                    Showing the {{ shared_materials|length }} most recent of
+                    {{ shared_materials_total }} shared materials.
+                </p>
+            {% endif %}
+        </div>
+
+        <div class="panel">
+            <h2>Tutoring</h2>
+
+            <ul class="profile-list">
+                {% if approved_tutor %}
+                    <li>Approved tutor</li>
+                    {% for subject in approved_tutor.subjects.all %}
+                        <li>{{ subject.name }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li class="muted">This user is not offering tutoring sessions.</li>
+                {% endif %}
+            </ul>
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

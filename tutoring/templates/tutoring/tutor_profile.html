@@ -49,6 +49,10 @@
                     <span class="count">No ratings yet</span>
                 {% endif %}
             </p>
+
+            <a href="{% url 'accounts:public_profile' tutor.user.id %}" class="secondary-link">
+                View user profile →
+            </a>
         </div>
 
         {% if not is_own_profile %}
@@ -120,3 +124,4 @@
 </section>
 
 {% endblock %}
+
