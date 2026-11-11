@@ -93,6 +93,12 @@
         <a href="{% url 'materials:download' material.pk %}" id="download-link" class="btn btn-primary">
           ⬇ Download
         </a>
+                {% if request.user == material.uploaded_by %}
+          <button type="button" class="btn btn-ghost" id="delete-open"
+                  style="color:#e5484d; border-color:#e5484d;">
+            🗑 Delete
+          </button>
+        {% endif %}
       </div>
     </div>
 
@@ -186,6 +192,38 @@
     </div>
 
   </section>
+
+    {% if request.user == material.uploaded_by %}
+    <!-- RF-25: modal de confirmación de eliminación -->
+    <dialog id="delete-dialog" aria-labelledby="delete-title"
+            style="background: var(--ink); color: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 1.5rem; max-width: 420px; width: 90%;">
+      <h3 id="delete-title" style="margin-top:0;">Delete this material?</h3>
+      <p>
+        You are about to permanently delete <strong>{{ material.title }}</strong>.
+        This action cannot be undone: the material, its file, its ratings and its download history will be removed.
+      </p>
+      <form method="post" action="{% url 'materials:delete' material.pk %}"
+            style="display:flex; gap:.5rem; justify-content:flex-end; margin-top:1.25rem;">
+        {% csrf_token %}
+        <button type="button" class="btn btn-ghost" id="delete-cancel">Cancel</button>
+        <button type="submit" class="btn"
+                style="background:#e5484d; border-color:#e5484d; color:#fff;">Yes, delete</button>
+      </form>
+    </dialog>
+
+    <script>
+      (function () {
+        var dialog = document.getElementById('delete-dialog');
+        var openBtn = document.getElementById('delete-open');
+        var cancelBtn = document.getElementById('delete-cancel');
+        if (!dialog || !openBtn) return;
+        openBtn.addEventListener('click', function () { dialog.showModal(); });
+        cancelBtn.addEventListener('click', function () { dialog.close(); });
+        // Cierra al hacer clic fuera del cuadro
+        dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });
+      })();
+    </script>
+  {% endif %}
 
   {% if not has_downloaded %}
     <!-- RF-13: al descargar, recarga la página para habilitar el control de calificación -->

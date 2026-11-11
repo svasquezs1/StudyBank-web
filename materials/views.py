@@ -1,7 +1,7 @@
 import os
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Avg, Count, F, OuterRef, Q, Subquery, Sum
 from django.db.models.functions import Coalesce
@@ -63,6 +63,37 @@ def material_edit(request, pk):
         form = MaterialEditForm(instance=material)
 
     return render(request, 'materials/edit.html', {'form': form, 'material': material})
+
+@login_required
+def material_delete(request, pk):
+    """
+    RF-25 — Elimina definitivamente un material (registro + archivo físico).
+    Solo el uploader original puede hacerlo: cualquier otro usuario recibe 403.
+    Solo acepta POST (el modal de confirmación del detalle envía el formulario).
+    """
+    material = get_object_or_404(Material, pk=pk)
+
+    if material.uploaded_by_id != request.user.id:
+        raise PermissionDenied
+
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
+    file_name = material.file.name
+    storage = material.file.storage
+
+    # Borra el registro (calificaciones y descargas asociadas se eliminan en cascada).
+    material.delete()
+
+    # Borra el archivo físico del storage; si falla, el registro ya no existe y no se rompe la app.
+    if file_name:
+        try:
+            storage.delete(file_name)
+        except Exception:
+            pass
+
+    messages.success(request, 'Study material deleted successfully.')
+    return redirect('materials:list')
 
 @login_required
 def material_list(request):
