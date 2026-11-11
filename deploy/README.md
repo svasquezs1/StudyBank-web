@@ -34,7 +34,6 @@ Files in this folder:
 1. Open AWS Academy → course *AWS Academy Learner Lab* → **Modules** → **Launch AWS Academy Learner Lab**.
 2. Click **Start Lab** and wait until the AWS indicator is green.
 3. Click **AWS** to open the console and go to **EC2 → Instances**.
-
 ## 2. Create the instance (first time only)
 
 **EC2 → Launch instance**:
@@ -45,7 +44,6 @@ Files in this folder:
 4. **Key pair:** *Proceed without a key pair* — the connection is made with EC2 Instance Connect.
 5. **Network settings:** allow SSH, HTTP and HTTPS traffic from the internet.
 6. **Launch instance**.
-
 ## 3. Connect to the instance
 
 Select the instance → **Connect** → **EC2 Instance Connect** → **Connect**. A terminal opens in the browser as `ec2-user`.
@@ -77,19 +75,20 @@ DEBUG=False
 ALLOWED_HOSTS=
 CSRF_TRUSTED_ORIGINS=
 SERVE_MEDIA=True
+SEED_ADMIN_PASSWORD=<the administrators' password shared by the team>
 ```
 
 `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS` are filled in automatically by `start_studybank.sh`. `SERVE_MEDIA=True` lets Django serve the uploaded files while `DEBUG=False`. Leave the `R2_*` variables empty.
 
-Prepare the database and the static files, and create the administrator:
+Prepare the database and the static files, and load the shared catalogs and the team administrator accounts:
 
 ```bash
 sudo venv/bin/python manage.py migrate
 sudo venv/bin/python manage.py collectstatic --noinput
-sudo venv/bin/python manage.py createsuperuser
+sudo venv/bin/python manage.py seed_studybank
 ```
 
-Load the universities, programs, courses and subjects from `/admin/`.
+On an instance that already has data, only run `seed_studybank` (never delete `db.sqlite3` there): it adds what is missing and keeps the existing users, materials and requests.
 
 ## 5. Start the server
 

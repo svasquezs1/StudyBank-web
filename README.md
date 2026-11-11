@@ -139,12 +139,14 @@ See:
    python manage.py migrate
 ```
  
-6. **Create a superuser if administrative access is required**
+6. **Load the shared starting data**
 ```bash
-   python manage.py createsuperuser
+   python manage.py seed_studybank
 ```
  
-   StudyBank uses email-based authentication, so the account is associated with an email address rather than a traditional username.
+   This creates the shared catalogs (Universidad EAFIT, its programs, the courses and the tutoring subjects) and the team administrator accounts `sebastian@eafit.edu.co`, `gisel@eafit.edu.co` and `samuel@eafit.edu.co`, so every member works with the same data. Their password is read from `SEED_ADMIN_PASSWORD` in your `.env`; the team shares the value privately and it is never committed. The command can be run again at any time without duplicating anything; add `--reset-admin-passwords` to set the administrators' password to the current value of `SEED_ADMIN_PASSWORD`.
+ 
+   StudyBank uses email-based authentication, so accounts are identified by their email address rather than a traditional username. To start again from a clean database, delete `db.sqlite3` and repeat steps 5 and 6.
  
 7. **Run the development server**
 ```bash

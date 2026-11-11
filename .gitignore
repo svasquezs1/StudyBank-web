@@ -13,6 +13,8 @@
 # propios datos de prueba. Compartirla causaría conflictos.
 db.sqlite3
 db.sqlite3-journal
+# Copias de respaldo de la base local (p. ej. antes de correr seed_studybank).
+*.sqlite3
 
 # Secretos y variables de entorno (SECRET_KEY, llaves de Cloudflare R2).
 # NUNCA debe subirse. El .env.example (plantilla vacía) SÍ va al repo.
