@@ -1,7 +1,7 @@
 import os
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import FileResponse, Http404, HttpResponseNotAllowed
+from django.http import FileResponse, Http404, HttpResponseNotAllowed, request
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Avg, Count, F, OuterRef, Q, Subquery, Sum
 from django.db.models.functions import Coalesce
@@ -163,6 +163,7 @@ def download_material(request, pk):
 def search_materials(request):
     query = request.GET.get('q', '').strip()
     selected_course = request.GET.get('course', '').strip()
+    selected_university = request.GET.get('university', '').strip()  # RF-26
 
     # RF-14: criterio de ordenamiento (si el valor no es válido, se usa el predeterminado)
     sort_by = request.GET.get('sort', DEFAULT_SORT).strip()
@@ -171,6 +172,8 @@ def search_materials(request):
 
     # 1. Obtenemos los nombres de las materias para listar en el select
     courses_list = Material.objects.values_list('course__name', flat=True).distinct().order_by('course__name')
+    # 2. Obtenemos los nombres de las universidades para listar en el select
+    universities_list = Material.objects.values_list('university__name', flat=True).distinct().order_by('university__name')
 
     # RF-14: total de descargas del material (suma de todas las descargas de todos los usuarios).
     # Se calcula con una subconsulta para que no se multiplique al unirse con las calificaciones.
@@ -200,6 +203,10 @@ def search_materials(request):
     if selected_course:
         materials = materials.filter(course__name__iexact=selected_course)
 
+    # 3.1 Filtrado por Universidad (RF-26). Se combina con el filtro de materia (RF-06).
+    if selected_university:
+        materials = materials.filter(university__name__iexact=selected_university)
+
     # 4. Ordenamiento (RF-14). Siempre termina en -uploaded_at y -pk para que el orden sea determinista.
     if sort_by == 'rating':
         # Promedio de mayor a menor; sin calificaciones (promedio NULL) al final.
@@ -217,7 +224,9 @@ def search_materials(request):
         'courses_list': courses_list,
         'query': query,
         'selected_course': selected_course,
-        'is_searched': bool(query or selected_course),
+        'universities_list': universities_list,
+        'selected_university': selected_university,
+        'is_searched': bool(query or selected_course or selected_university),
         'star_range': range(1, MaterialRating.MAX_SCORE + 1),
         'sort_by': sort_by,
         'sort_options': SORT_OPTIONS,
