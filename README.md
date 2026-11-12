@@ -11,7 +11,6 @@ Students can use StudyBank to access academic resources and find tutors accordin
 ## 📚 Table of Contents
  
 - [Features](#-features)
-- [Tech Stack](#-tech-stack)
 - [Team](#-team)
 - [Getting Started](#-getting-started)
 - [Project Structure](#-project-structure)
@@ -21,28 +20,31 @@ Students can use StudyBank to access academic resources and find tutors accordin
  
 ## ✨ Features
  
-### Current MVP
+### Final product (Sprint 4)
  
-The current MVP includes the following functionality:
+StudyBank includes the following functionality:
  
-- Institutional user registration, login, and logout.
-- Profile editing (name, university, program, and profile picture).
+- Institutional user registration, login, and logout, with feedback messages that never reveal which value failed.
+- Profile editing (name, university, program, and profile picture) and public user profiles with the materials each user shared.
 - University and academic program management.
-- Study material upload, keyword search, filtering by course, detail view, and download.
+- Study material upload, keyword search, filtering by course and university, detail view, and download.
+- Editing and deletion of a material by the user who uploaded it.
 - Tutor registration with subject selection.
 - Administrative approval of tutor profiles.
 - Tutor search by subject.
-- Tutoring session requests, specifying subject, date, time, and mode (in person or virtual).
-- Acceptance or rejection of tutoring requests by tutors.
+- Tutoring session requests, specifying subject, date, time, and mode (in person or virtual), which the student can cancel.
+- Acceptance or rejection of tutoring requests by tutors, and statistics of each tutor's activity.
 - Material ratings (1 to 5 stars, after downloading) and catalog sorting by rating or downloads.
 - Tutor availability (recurring weekly time slots).
 - Tutor public profile with average rating.
 - Completion and rating of tutoring sessions, and tutor sorting by rating.
 - In-app notifications when a tutoring request is created, accepted or rejected.
 - Shared and responsive visual interface, with a mobile menu.
-### Planned functionality
+- Shared starting data and team administrator accounts with `python manage.py seed_studybank`.
+- Production deployment on AWS EC2 (see [Deployment](#-deployment)).
+### Not implemented
  
-Sprint 4 (in progress) adds the public user profile (RF-23), editing and deleting uploaded materials (RF-24, RF-25), filtering materials by university (RF-26), cancelling tutoring sessions (RF-28), tutor activity statistics (RF-30) and the production deployment on AWS EC2. Password recovery (RF-22) remains in the backlog.
+29 of the 33 functional requirements were implemented in four sprints. Password recovery (RF-22) remains in the backlog, and reporting inappropriate material, the trends dashboard and the top-rated report (RF-31 to RF-33) were classified as *Won't have this time*.
  
 The complete list of functional requirements, their priorities, and their current status is documented in the project Wiki.
  
@@ -204,6 +206,7 @@ The Wiki contains:
 - [Deliverable 1](https://github.com/svasquezs1/StudyBank-web/wiki/Deliverable-1) — project definition and Software Requirements Specification.
 - [Deliverable 2](https://github.com/svasquezs1/StudyBank-web/wiki/Deliverable-2) — solution design and functionality preview.
 - [Deliverable 3](https://github.com/svasquezs1/StudyBank-web/wiki/Deliverable-3) — MVP.
+- [Deliverable 4](https://github.com/svasquezs1/StudyBank-web/wiki/Deliverable-4) — final product (PMV), AWS EC2 deployment and project documentation.
 - [Requirements](https://github.com/svasquezs1/StudyBank-web/wiki/Requirements) — status, sprint, and responsible person for every requirement.
 - [Weekly Meetings](https://github.com/svasquezs1/StudyBank-web/wiki/Weekly-Meetings)
 - [Retrospectives](https://github.com/svasquezs1/StudyBank-web/wiki/Retrospectives)
@@ -215,3 +218,4 @@ Project requirements, backlog, progress, and task tracking are managed through t
 ## 📄 Academic Use
  
 StudyBank is being developed for academic purposes as part of the course **Proyecto Integrador 1 (ST0251)** at Universidad EAFIT.
+ 
