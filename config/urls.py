@@ -2,12 +2,11 @@
 URL configuration for config project.
 """
 from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
-from django.views.static import serve
 
 from . import views
+from .media import protected_media
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -18,14 +17,9 @@ urlpatterns = [
     path('notifications/', include('notifications.urls')),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-elif settings.SERVE_MEDIA and getattr(settings, 'MEDIA_ROOT', None):
-    # Production without external storage (e.g. AWS EC2): Django serves /media/.
+if getattr(settings, 'MEDIA_ROOT', None) and (settings.DEBUG or settings.SERVE_MEDIA):
+    # Uploaded files stored on the server disk (local development and AWS EC2)
+    # are served by Django only to logged-in users.
     urlpatterns += [
-        re_path(
-            r'^media/(?P<path>.*)$',
-            serve,
-            {'document_root': settings.MEDIA_ROOT},
-        ),
+        re_path(r'^media/(?P<path>.*)$', protected_media, name='protected_media'),
     ]

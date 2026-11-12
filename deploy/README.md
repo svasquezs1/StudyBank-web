@@ -78,7 +78,7 @@ SERVE_MEDIA=True
 SEED_ADMIN_PASSWORD=<the administrators' password shared by the team>
 ```
 
-`ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS` are filled in automatically by `start_studybank.sh`. `SERVE_MEDIA=True` lets Django serve the uploaded files while `DEBUG=False`. Leave the `R2_*` variables empty.
+`ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS` are filled in automatically by `start_studybank.sh`. `SERVE_MEDIA=True` lets Django serve the uploaded files while `DEBUG=False`, only to logged-in users: an anonymous visitor who opens a `/media/` URL is sent to the login page. Leave the `R2_*` variables empty.
 
 Prepare the database and the static files, and load the shared catalogs and the team administrator accounts:
 
