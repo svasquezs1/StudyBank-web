@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <!-- BÚSQUEDA (RF-05), FILTRO POR MATERIA (RF-06) Y ORDEN (RF-14) -->
+  <!-- BÚSQUEDA (RF-05), FILTRO POR MATERIA (RF-06), UNIVERSIDAD (RF-26) Y ORDEN (RF-14) -->
   {% if user.is_authenticated %}
     <form action="{% url 'materials:search_materials' %}" method="GET" class="filter-bar">
 
@@ -41,6 +41,19 @@
         </select>
       </div>
 
+      <!-- RF-26: filtro por universidad -->
+      <div class="field">
+        <label for="university-select">University</label>
+        <select id="university-select" name="university" onchange="this.form.submit()">
+          <option value="">All Universities</option>
+          {% for university_item in universities_list %}
+            <option value="{{ university_item }}" {% if selected_university == university_item %}selected{% endif %}>
+              {{ university_item }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
       <div class="field">
         <label for="sort-select">Sort by</label>
         <select id="sort-select" name="sort" onchange="this.form.submit()">
@@ -52,7 +65,7 @@
 
       <div class="filter-actions">
         <button type="submit" class="btn btn-primary">Search</button>
-        {% if selected_course or query %}
+        {% if selected_course or selected_university or query %}
           <a href="{% url 'materials:search_materials' %}{% if sort_by != 'newest' %}?sort={{ sort_by }}{% endif %}" class="clear-link">
             ✕ Clear
           </a>
@@ -74,7 +87,8 @@
     <p class="result-count result-count-spaced">
       Found <strong>{{ materials|length }}</strong> results 
       {% if selected_course %}for course '<strong>{{ selected_course }}</strong>'{% endif %}
-      {% if query %}{% if selected_course %} and{% endif %} search '<strong>{{ query }}</strong>'{% endif %}
+      {% if selected_university %}{% if selected_course %} at{% else %}for{% endif %} university '<strong>{{ selected_university }}</strong>'{% endif %}
+      {% if query %}{% if selected_course or selected_university %} and{% endif %} search '<strong>{{ query }}</strong>'{% endif %}
     </p>
   {% else %}
     <p class="result-count result-count-spaced">
@@ -112,7 +126,7 @@
               <span class="dl">No ratings yet</span>
             {% endif %}
           </div>
-                    {% if material.uploaded_by_id == user.id %}
+          {% if material.uploaded_by_id == user.id %}
             <a href="{% url 'materials:edit' material.pk %}" class="btn btn-ghost btn-sm">Edit</a>
           {% endif %}
           <a href="{% url 'materials:detail' material.pk %}" class="btn btn-primary btn-sm">View Details</a>
@@ -120,12 +134,16 @@
       </article>
     {% empty %}
       <div class="empty-search-state">
-        {% if selected_course %}
+        {% if selected_course and selected_university %}
+          <p class="empty-title">No study materials found for course "{{ selected_course }}" at "{{ selected_university }}"</p>
+        {% elif selected_course %}
           <p class="empty-title">No study materials found for course "{{ selected_course }}"</p>
+        {% elif selected_university %}
+          <p class="empty-title">No study materials found for university "{{ selected_university }}"</p>
         {% else %}
           <p class="empty-title">No study materials found for "{{ query }}"</p>
         {% endif %}
-        <p class="empty-subtitle">Try selecting "All Courses" or searching with different keywords.</p>
+        <p class="empty-subtitle">Try selecting "All Courses" or "All Universities", or searching with different keywords.</p>
       </div>
     {% endfor %}
   </div>

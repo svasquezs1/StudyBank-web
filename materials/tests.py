@@ -304,3 +304,93 @@ class MaterialDeleteTests(TestCase):
         self.assertNotContains(response, 'id="delete-open"')
         self.assertNotContains(response, 'id="delete-dialog"')
         self.material.file.delete(save=False)
+
+class MaterialUniversityFilterTests(TestCase):
+    """RF-26: filtro de materiales por universidad."""
+
+    def setUp(self):
+        self.eafit = University.objects.create(name="EAFIT")
+        self.udea = University.objects.create(name="UdeA")
+        self.program = Program.objects.create(name="Ingeniería de Sistemas", university=self.eafit)
+        self.user = User.objects.create_user(
+            email="user@eafit.edu.co", password="Password123!",
+            university=self.eafit, program=self.program,
+        )
+        self.physics = Course.objects.create(name="Physics I")
+        self.calculus = Course.objects.create(name="Calculus")
+        self.client.login(email="user@eafit.edu.co", password="Password123!")
+        self.search_url = reverse('materials:search_materials')
+
+        self.m1 = self._make("Physics notes EAFIT", self.physics, self.eafit)
+        self.m2 = self._make("Calculus notes EAFIT", self.calculus, self.eafit)
+        self.m3 = self._make("Physics notes UdeA", self.physics, self.udea)
+
+    def _make(self, title, course, university):
+        return Material.objects.create(
+            title=title, description="d", uploaded_by=self.user,
+            course=course, university=university, file_type="notes",
+            file=SimpleUploadedFile(f"{title}.pdf", b"x", content_type="application/pdf"),
+        )
+
+    def tearDown(self):
+        for m in Material.objects.all():
+            m.file.delete(save=False)
+
+    def test_list_page_has_university_dropdown_and_extends_base(self):
+        response = self.client.get(self.search_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'materials/list.html')
+        self.assertTemplateUsed(response, 'base.html')
+        self.assertContains(response, 'id="university-select"')
+        self.assertContains(response, 'All Universities')
+        self.assertEqual(list(response.context['universities_list']), ["EAFIT", "UdeA"])
+
+    def test_selecting_university_shows_only_its_materials(self):
+        response = self.client.get(self.search_url, {'university': 'UdeA'})
+        self.assertContains(response, "Physics notes UdeA")
+        self.assertNotContains(response, "Physics notes EAFIT")
+        self.assertNotContains(response, "Calculus notes EAFIT")
+        self.assertEqual(response.context['selected_university'], 'UdeA')
+
+    def test_clearing_filter_shows_all_materials_again(self):
+        response = self.client.get(self.search_url, {'university': ''})
+        for title in ("Physics notes EAFIT", "Calculus notes EAFIT", "Physics notes UdeA"):
+            self.assertContains(response, title)
+        self.assertEqual(self.client.get(self.search_url).context['materials'].count(), 3)
+
+    def test_university_filter_combines_with_course_filter(self):
+        response = self.client.get(self.search_url, {'university': 'EAFIT', 'course': 'Physics I'})
+        self.assertContains(response, "Physics notes EAFIT")
+        self.assertNotContains(response, "Calculus notes EAFIT")
+        self.assertNotContains(response, "Physics notes UdeA")
+
+    def test_university_filter_combines_with_keyword_search(self):
+        response = self.client.get(self.search_url, {'university': 'EAFIT', 'q': 'Calculus'})
+        self.assertContains(response, "Calculus notes EAFIT")
+        self.assertNotContains(response, "Physics notes EAFIT")
+        self.assertNotContains(response, "Physics notes UdeA")
+
+    def test_university_filter_is_case_insensitive(self):
+        response = self.client.get(self.search_url, {'university': 'udea'})
+        self.assertContains(response, "Physics notes UdeA")
+        self.assertNotContains(response, "Physics notes EAFIT")
+
+    def test_unknown_university_shows_empty_state(self):
+        response = self.client.get(self.search_url, {'university': 'Nowhere'})
+        self.assertEqual(response.context['materials'].count(), 0)
+        self.assertContains(response, 'No study materials found for university "Nowhere"')
+
+    def test_selected_university_is_preselected_in_dropdown(self):
+        response = self.client.get(self.search_url, {'university': 'UdeA'})
+        self.assertContains(response, 'value="UdeA" selected')
+
+    def test_university_filter_is_kept_when_sorting(self):
+        response = self.client.get(self.search_url, {'university': 'EAFIT', 'sort': 'rating'})
+        self.assertEqual(response.context['materials'].count(), 2)
+        self.assertEqual(response.context['sort_by'], 'rating')
+
+    def test_university_filter_requires_login(self):
+        self.client.logout()
+        response = self.client.get(self.search_url, {'university': 'EAFIT'})
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/accounts/login/', response.url)
